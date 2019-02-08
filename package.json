@@ -5,11 +5,14 @@
   "main": "index.js",
   "dependencies": {
     "ngraph.gexf": "0.0.10",
-    "ngraph.graph": "^0.0.15"
+    "ngraph.graph": "^0.0.15",
+    "ngraph.offline.layout": "^1.1.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "standard": "*"
+  },
   "scripts": {
-    "test": "test"
+    "test": "standard"
   },
   "repository": {
     "type": "git",
@@ -18,7 +21,8 @@
   "keywords": [
     "Graph",
     "viz",
-    "Semester"
+    "Semester project",
+    "EPFL"
   ],
   "author": "Axel Nilsson",
   "license": "ISC",
