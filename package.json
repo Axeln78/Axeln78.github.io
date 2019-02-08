@@ -1,0 +1,29 @@
+{
+  "name": "axeln78.github.io",
+  "version": "1.0.0",
+  "description": "WebSite for Graph Visualisation",
+  "main": "index.js",
+  "dependencies": {
+    "ngraph.gexf": "0.0.10",
+    "ngraph.graph": "^0.0.15"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Axeln78/Axeln78.github.io.git"
+  },
+  "keywords": [
+    "Graph",
+    "viz",
+    "Semester"
+  ],
+  "author": "Axel Nilsson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Axeln78/Axeln78.github.io/issues"
+  },
+  "homepage": "https://github.com/Axeln78/Axeln78.github.io#readme"
+}
