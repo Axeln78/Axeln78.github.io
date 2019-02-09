@@ -6,7 +6,8 @@
   "dependencies": {
     "ngraph.gexf": "0.0.10",
     "ngraph.graph": "^0.0.15",
-    "ngraph.offline.layout": "^1.1.1"
+    "ngraph.offline.layout": "^1.1.1",
+    "uglify-js": "^3.4.9"
   },
   "devDependencies": {
     "standard": "*"
