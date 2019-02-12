@@ -60,20 +60,23 @@ Hello World
   // Finally, let's ask our sigma instance to refresh:
   s.refresh();
 </script>
-</body>
 
-<!--<script>
-  sigma.parsers.gexf(
-    'VizTested.gephi',
-    { // Here is the ID of the DOM element that
-      // will contain the graph:
-      container: 'sigma-container'
-    },
-    function(s) {
-      // This function will be executed when the
-      // graph is displayed, with "s" the related
-      // sigma instance.
-    }
-  );
-</script>-->
+<div id="sigma-container"></div>
+<script src="./sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
+<script>
+sigma.parsers.gexf(
+ './data/VizTested.gephi',
+ { // Here is the ID of the DOM element that
+   // will contain the graph:
+   container: 'sigma-container'
+ },
+ function(s) {
+   // This function will be executed when the
+   // graph is displayed, with "s" the related
+   // sigma instance.
+ }
+);
+</script>
+
+</body>
 </html>
