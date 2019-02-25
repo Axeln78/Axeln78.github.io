@@ -66,12 +66,12 @@ Graph Visualization of Wikipedia Data
 
 <div id="sigma-container"></div>
 
-<!-- <script src="./sigma.js/plugins/sigma.parsers.gexf.js"></script>    'https://axeln78.github.io/peaks_graph.gexf' -->
-<script src="sigma.js/plugins/sigma.parsers.gexf/gexf-parser.js"></script>
-<script src="sigma.js/plugins/sigma.parsers.gexf/sigma.parsers.gexf.js"></script>
+<script src="./sigma.js/plugins/sigma.parsers.gexf.js"></script>
+<!-- <script src="sigma.js/plugins/sigma.parsers.gexf/gexf-parser.js"></script>
+<script src="sigma.js/plugins/sigma.parsers.gexf/sigma.parsers.gexf.js"></script> -->
 <script>
 sigma.parsers.gexf(
- 'http://0.0.0.0:8000/',
+ 'peaks_graph.gexf',
  { // Here is the ID of the DOM element that
    // will contain the graph:
    container: 'sigma-container'
