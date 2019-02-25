@@ -28,7 +28,7 @@ Graph Visualization of Wikipedia Data
 <body>
 <div class="box" id="sigma-container"></div>
 
-<script>
+<!-- <script>
   // Let's first initialize sigma:
   var s = new sigma('sigma-container');
 
@@ -62,9 +62,7 @@ Graph Visualization of Wikipedia Data
   s.refresh();
 </script>
 
-<!--  <div class="line"></div> -->
-
-<div class="box" id="sigma-container2"></div>
+<div class="box" id="sigma-container2"></div> -->
 
 <script src="./sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
 <!-- <script src="sigma.js/plugins/sigma.parsers.gexf/gexf-parser.js"></script>
@@ -74,7 +72,7 @@ sigma.parsers.gexf(
  'peaks_graph.gexf',
  { // Here is the ID of the DOM element that
    // will contain the graph:
-   container: 'sigma-container2'
+   container: 'sigma-container'
  },
  //function(s) {
    // This function will be executed when the
