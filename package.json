@@ -10,9 +10,10 @@
     "uglify-js": "^3.4.9"
   },
   "devDependencies": {
-    "standard": "*"
+    "http-server": "~0.9.0"
   },
   "scripts": {
+    "start": "http-server -p 8000",
     "test": "standard"
   },
   "repository": {
