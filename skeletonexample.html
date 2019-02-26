@@ -2,6 +2,17 @@
 <html lang="en">
 <head>
 
+ <style type="text/css">
+    body {
+      margin: 0;
+    }
+    #sigma-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+
   <!-- Basic Page Needs
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
@@ -54,10 +65,10 @@
   <div class="one-half column"> <p> A JS library for displaying grpahs in WebGL</p></div>
 </div>
 
-  <div class="row">
-<div class="one-half column" id="sigma-container">
-
-      <script>
+<div class=row>
+  <div class="one-half column" id="sigma-container"></div>
+</div>
+<script>
         // Let's first initialize sigma:
         var s = new sigma('sigma-container');
 
