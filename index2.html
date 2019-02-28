@@ -1,0 +1,167 @@
+<html lang="en">
+<head>
+  <meta name="keywords" content="visualization, npm, python, graph" />
+    <meta name="author" content="Axel Nilsson">
+    <meta name="title" content="Graph Visualization" />
+</head>
+
+<title> Graph Visualization of Wikipedia </title>
+<h2> Where renders get dangerous and can crash your browser. Make sure to fasten your seatbelt <h2>
+
+<head>
+<style type="text/css">
+  #sigma-container {
+    max-width: 420px;
+    height: 262px;
+    margin: auto;
+    border-style: solid;
+    border-width: 1px;
+  }
+  #sigma-container2 {
+    max-width: 800px;
+    height: 600px;
+    margin: auto;
+    border-style: solid;
+    border-width: 1px;
+  }
+</style>
+</head>
+<!-- Sigma Inclusion -->
+<script src="./sigma_js/sigma.min.js"></script>
+<script src="./sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
+
+
+<!-- Render display -->
+<body>
+<div class="box" id="sigma-container"></div>
+
+ <script>
+  // Let's first initialize sigma:
+  var s = new sigma('sigma-container');
+
+  // Then, let's add some data to display:
+  s.graph.addNode({
+    // Main attributes:
+    id: 'n0',
+    label: 'Hello',
+    // Display attributes:
+    x: 0,
+    y: 0,
+    size: 1,
+    color: '#f00'
+  }).addNode({
+    // Main attributes:
+    id: 'n1',
+    label: 'World !',
+    // Display attributes:
+    x: 1,
+    y: 1,
+    size: 1,
+    color: '#00f'
+  }).addEdge({
+    id: 'e0',
+    // Reference extremities:
+    source: 'n0',
+    target: 'n1'
+  });
+
+  s.refresh();
+</script>
+
+<div class="box" id="sigma-container2"></div>
+
+<!-- <script>
+sigma.parsers.gexf(
+ '../data/VizWiki1.gexf',
+ {
+   container: 'sigma-container2'
+ },
+ function(s){
+
+ }
+);
+</script> -->
+<script type="text/javascript" src="scriptRender1.js">
+
+</script>
+<!-- script>
+  // Add a method to the graph model that returns an
+  // object with every neighbors of a node inside:
+  sigma.classes.graph.addMethod('neighbors', function(nodeId) {
+    var k,
+        neighbors = {},
+        index = this.allNeighborsIndex[nodeId] || {};
+
+    for (k in index)
+      neighbors[k] = this.nodesIndex[k];
+
+    return neighbors;
+  });
+
+  sigma.parsers.gexf(
+    '../data/VizWiki1.gexf',
+    {
+      container: 'sigma-container2'
+    },
+    function(s) {
+      // We first need to save the original colors of our
+      // nodes and edges, like this:
+      s.graph.nodes().forEach(function(n) {
+        n.originalColor = n.color;
+      });
+      s.graph.edges().forEach(function(e) {
+        e.originalColor = e.color;
+      });
+
+      // When a node is clicked, we check for each node
+      // if it is a neighbor of the clicked one. If not,
+      // we set its color as grey, and else, it takes its
+      // original color.
+      // We do the same for the edges, and we only keep
+      // edges that have both extremities colored.
+      s.bind('clickNode', function(e) {
+        var nodeId = e.data.node.id,
+            toKeep = s.graph.neighbors(nodeId);
+        toKeep[nodeId] = e.data.node;
+
+        s.graph.nodes().forEach(function(n) {
+          if (toKeep[n.id])
+            n.color = n.originalColor;
+          else
+            n.color = '#eee';
+        });
+
+        s.graph.edges().forEach(function(e) {
+          if (toKeep[e.source] && toKeep[e.target])
+            e.color = e.originalColor;
+          else
+            e.color = '#eee';
+        });
+
+        // Since the data has been modified, we need to
+        // call the refresh method to make the colors
+        // update effective.
+        s.refresh();
+      });
+
+      // When the stage is clicked, we just color each
+      // node and edge with its original color.
+      s.bind('clickStage', function(e) {
+        s.graph.nodes().forEach(function(n) {
+          n.color = n.originalColor;
+        });
+
+        s.graph.edges().forEach(function(e) {
+          e.color = e.originalColor;
+        });
+
+        // Same as in the previous event:
+        s.refresh();
+      });
+    }
+  );
+</script> -->
+
+
+</body>
+</html>

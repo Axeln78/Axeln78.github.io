@@ -1,86 +1,107 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="keywords" content="visualization, npm, python, graph" />
-    <meta name="author" content="Axel Nilsson">
-    <meta name="title" content="Graph Visualization" />
-</head>
 
-<title> Graph Visualization of Wikipedia </title>
-Graph Visualization of Wikipedia Data
-
-<head>
 <style type="text/css">
-  #sigma-container {
-    max-width: 420px;
-    height: 262px;
-    margin: auto;
-  }
-</style>
+    body {
+      margin: 10;
+    }
+    #sigma-container2 {
+      position: absolute;
+      width: 100%;
+      height: 600px;
+      border-style: solid;
+      border-width: 1px;
+    }
+  </style>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title> Graph Visualization of Wikipedia </title>
+  <meta name="description" content="Graph Visualization">
+  <meta name="author" content="Axel Nilsson">
+  <meta name="title" content="Graph Visualization">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+  <!-- Sigma
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="./sigma_js/sigma.min.js"></script>
+  <script src="./sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
+
 </head>
-<script src="./sigma_js/sigma.min.js"></script>
-
-<!-- <div id="sigma-container"></div>
-<script src="./sigma.js/build/sigma.min.js"></script>
-<script src="./sigma.js/build/plugins/sigma.parsers.gexf.min.js"></script>
-<script> -->
 
 
-<body>
-<div class="box" id="sigma-container"></div>
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <section class="header">
+      <div class="two-thirds column" style="margin-top: 10%">
+        <h1>Graph Visualization of Wikipedia</h1>
+      </div>
+    </section>
+  </div>
 
-<!-- <script>
-  // Let's first initialize sigma:
-  var s = new sigma('sigma-container');
+  <div class="container">
+    <div class="row">
+      <div class="one-half column">
+        <p>This website is to experiment and display graphs as a part of the development of the project of visualization of a sub-set of Wikipedia pages. This project is linked to a university project at EPFL </p>
+      </div>
+    </div>
+  </div>
 
-  // Then, let's add some data to display:
-  s.graph.addNode({
-    // Main attributes:
-    id: 'n0',
-    label: 'Hello',
-    // Display attributes:
-    x: 0,
-    y: 0,
-    size: 1,
-    color: '#f00'
-  }).addNode({
-    // Main attributes:
-    id: 'n1',
-    label: 'World !',
-    // Display attributes:
-    x: 1,
-    y: 1,
-    size: 1,
-    color: '#00f'
-  }).addEdge({
-    id: 'e0',
-    // Reference extremities:
-    source: 'n0',
-    target: 'n1'
-  });
+  <body>
 
-  // Finally, let's ask our sigma instance to refresh:
-  s.refresh();
-</script>
+<div class="container" id="Sigma" style="margin-bottom: 800%">
+  <div class="row">
+   <div class="one-half column" > <h3>Sigma JS</h3> </div>
+    <div class="one-half column"> <p> A JS library for displaying grpahs in WebGL</p></div>
+  </div>
 
-<div class="box" id="sigma-container2"></div> -->
+ <div class=row id ="Render">
+  <div class="ten columns" id="sigma-container2"></div>
+ </div>
 
-<script src="./sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
-<!-- <script src="sigma.js/plugins/sigma.parsers.gexf/gexf-parser.js"></script>
-<script src="sigma.js/plugins/sigma.parsers.gexf/sigma.parsers.gexf.js"></script> -->
-<script>
-sigma.parsers.gexf(
- 'data/peaks_graph.gexf',
- { // Here is the ID of the DOM element that
-   // will contain the graph:
-   container: 'sigma-container'
- },
- //function(s) {
-   // This function will be executed when the
-   // graph is displayed, with "s" the related
-   // sigma instance.
- //}
-);
-</script>
+  <script type="text/javascript" src="scriptRender1.js"> </script>
+</div>
 
+  <!-- Link to dev -->
+  <div class="container" id="testEnv" style="margin-top: 10%">
+    <div class="row">
+      <h6>Access to the test environment where new renders are made. Enter at your own risk!</h6>
+      <a class="button" href="index2.html">Test Environment</a>
+    </div>
+  </div>
+
+
+<!-- Link to resources -->
+  <div class="container">
+    <div class="row">
+      <div class="one-half column" style="margin-top: 10%">
+        <h6>Exernal resources and links:</h6>
+        <p> For the Structure of the website, there is a simply built boiler plate in CSS called "Skeleton".<a href="http://www.getskeleton.com">Skeleton documentation</a></p>
+      </div>
+    </div>
+  </div>
+
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
 </html>
