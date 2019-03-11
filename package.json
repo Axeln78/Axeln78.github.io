@@ -2,7 +2,7 @@
   "name": "axeln78.github.io",
   "version": "1.0.0",
   "description": "WebSite for Graph Visualisation",
-  "main": "index.js",
+  "main": "index.html",
   "dependencies": {
     "d3-brush": "^1.0.6",
     "linter": "0.0.7",
@@ -21,7 +21,8 @@
   },
   "keywords": [
     "Graph",
-    "viz",
+    "visualization",
+    "Wikipedia",
     "Semester project",
     "EPFL"
   ],
