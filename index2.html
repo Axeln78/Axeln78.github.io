@@ -10,23 +10,7 @@
 
 <head>
 <link rel="stylesheet" type="text/css" href="css/style1.css">
-<style>
 
-.axis--grid .domain {
-  fill: #ddd;
-  stroke: none;
-}
-
-.axis--x .domain,
-.axis--grid .tick line {
-  stroke: #fff;
-}
-
-.axis--grid .tick--minor line {
-  stroke-opacity: .5;
-}
-
-</style>
 </head>
 <!-- Sigma Inclusion -->
 <script src="./sigma_js/sigma.min.js"></script>
@@ -37,6 +21,7 @@
 <body>
 <div class="box" id="sigma-container"></div>
 
+<!-- Hello World - Sigma  -->
  <script>
   // Let's first initialize sigma:
   var s = new sigma('sigma-container');
@@ -70,16 +55,18 @@
   s.refresh();
 </script>
 
+<!-- Interactive (click) rendering - Sigma  -->
 <div class="box" id="sigma-container2"></div>
-<script type="text/javascript" src="scriptRender.js"></script>
+<!--<script type="text/javascript" src=".js"></script> --> 
 
 <!-- D3 Inclusion -->
 <script src="https://d3js.org:d3-brush.v1.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
 <!-- Brush element -->
+<script type="text/javascript" src="index.js"></script>
+
 <p>Brush element</p>
-<script type="text/javascript" src="brushelement.js"></script>
 
 </body>
 </html>

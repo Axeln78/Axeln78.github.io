@@ -8,7 +8,7 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
   <title> Graph Visualization of Wikipedia </title>
-  <meta name="description" content="Graph Visualization">
+  <meta name="description" content="Graph Visualization of Wikipedia">
   <meta name="author" content="Axel Nilsson">
   <meta name="title" content="Graph Visualization">
 
@@ -56,18 +56,24 @@
   </div>
 
   <body>
+    <div class="container">
+      <div class="row">
+        <div class="one-half column"> <h3>The dataset</h3> </div>
+        <div class="one-half column"> <p>Each node represents a Wikipedia page, each link or edge represents the hyperlinks to which one can be directed to from another page.</p> </div>
+      </div>
+    </div>
 
-<div class="container" id="Sigma" style="margin-bottom: 50%">
+<div class="container" id="Sigma" style="margin-bottom: 10%">
   <div class="row">
+   <div class="one-half column"> <p> A JS library for displaying graphs in WebGL</p></div>
    <div class="one-half column" > <h3>Sigma JS</h3> </div>
-    <div class="one-half column"> <p> A JS library for displaying graphs in WebGL</p></div>
   </div>
 
  <div class=row id ="Render">
   <div class="box" id="sigma-container2"></div>
  </div>
 
-  <script type="text/javascript" src="scriptRender.js"> </script>
+  <script type="text/javascript" src="index.js"> </script>
 </div>
 
   <!-- Link to dev -->
@@ -83,7 +89,7 @@
   <div class="container">
     <div class="row">
       <div class="one-half column" style="margin-top: 10%">
-        <h6>Exernal resources and links:</h6>
+        <h5>Exernal resources and links:</h5>
         <p> For the Structure of the website, there is a simply built boiler plate in CSS called "Skeleton".<a href="http://www.getskeleton.com">Skeleton documentation</a></p>
       </div>
     </div>
