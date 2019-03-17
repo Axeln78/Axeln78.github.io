@@ -1,105 +1,134 @@
-//import sigma from 'sigma_js'
+// import sigma from 'sigma_js/sigma.min.js'
 
 // Add a method to the graph model that returns an
 // object with every neighbors of a node inside:
-sigma.classes.graph.addMethod('neighbors', function (nodeId) {
-  var k
+sigma.classes.graph.addMethod("neighbors", function(nodeId) {
+  var k;
 
-  var neighbors = {}
+  var neighbors = {};
 
-  var index = this.allNeighborsIndex[nodeId] || {}
+  var index = this.allNeighborsIndex[nodeId] || {};
 
   for (k in index) {
-    neighbors[k] = this.nodesIndex[k]
+    neighbors[k] = this.nodesIndex[k];
   }
 
-  return neighbors
-})
+  return neighbors;
+});
 
 /*  a function that takes as input a list of ids and outputs the list of node */
 
-sigma.classes.graph.addMethod('listIDs', function (someIds) {
+sigma.classes.graph.addMethod("listIDs", function(someIds) {
   // var someIds = ["159966", '81694', '157447']
-  var k
+  var k;
 
-  var idS = {}
+  var idS = {};
 
   for (k in someIds) {
-    idS[someIds[k]] = this.nodesIndex[someIds[k]]
+    idS[someIds[k]] = this.nodesIndex[someIds[k]];
   }
+  return idS;
+});
 
-  return idS
-})
+sigma.classes.graph.addMethod("activate", function(toKeep) {
+  this.nodes().forEach(function(n) {
+    if (toKeep[n.id]) {
+      n.color = n.originalColor;
+    } else {
+      n.color = "#eee";
+    }
+  });
 
-sigma.classes.graph.addMethod('activate', function (toKeep) {
-  this.nodes().forEach(function (n) {
-    if (toKeep[n.id]) { n.color = n.originalColor } else { n.color = '#eee' }
-  })
+  this.edges().forEach(function(e) {
+    if (toKeep[e.source] && toKeep[e.target]) {
+      e.color = e.originalColor;
+    } else {
+      e.color = "#eee";
+    }
+  });
+});
 
-  this.edges().forEach(function (e) {
-    if (toKeep[e.source] && toKeep[e.target]) { e.color = e.originalColor } else { e.color = '#eee' }
-  })
-})
+// MAKE A TEST FUNCTION
+//new captor_constructor(target, camera, settings)
 
-sigma.parsers.gexf(
-  '/data/VizWiki2.gexf',
-  {
-    container: 'sigma-container2'
-  },
-  function (s) {
-    // We first need to save the original colors of our
-    // nodes and edges, like this:
-    s.graph.nodes().forEach(function (n) {
-      n.originalColor = n.color
-    })
-    s.graph.edges().forEach(function (e) {
-      e.originalColor = e.color
-    })
+s2 = new sigma();
+s2.addRenderer({
+  type: "WebGL",
+  container: "sigma-container2"
+  //captors: [captor_constructor]
+});
+sigma.parsers.gexf("/data/VizWiki4.gexf", s2, function(s) {
+  s.refresh();
+  // We first need to save the original colors of our
+  // nodes and edges, like this:
+  s.graph.nodes().forEach(function(n) {
+    n.originalColor = n.color;
+  });
+  s.graph.edges().forEach(function(e) {
+    e.originalColor = e.color;
+  });
 
-    // When a node is clicked, we check for each node
-    // if it is a neighbor of the clicked one. If not,
-    // we set its color as grey, and else, it takes its
-    // original color.
-    // We do the same for the edges, and we only keep
-    // edges that have both extremities colored.
-    s.bind('clickNode', function (e) {
-      let nodeId = e.data.node.id // This is only an integer
+  //document.getElementById('range').onchange = function() { called() }
+  document.getElementById("range").onchange = function() {
+    alert("poop");
+    //var someIds = ["159966", '81694', '157447']
+    s.graph.nodes().forEach(function(n) {
+      n.color = "#eee";
+    });
+  };
+  //document.getElementById('start').addEventListener("change", called())
 
-      let toKeep = s.graph.neighbors(nodeId)
-      toKeep[nodeId] = e.data.node
+  // Listeners // try force atla afterwards
+  var force = false;
+  document.getElementById("layout").onclick = function() {
+    if (!force) s.startForceAtlas2({ slowDown: 10 });
+    else s.stopForceAtlas2();
+    force = !force;
+  };
 
-      // Draw the nodes that should stay activated
-      s.graph.activate(toKeep)
+  // When a node is clicked, we check for each node
+  // if it is a neighbor of the clicked one. If not,
+  // we set its color as grey, and else, it takes its
+  // original color.
+  // We do the same for the edges, and we only keep
+  // edges that have both extremities colored.
+  s.bind("clickNode", function(e) {
+    let nodeId = e.data.node.id; // This is only an integer
 
-      // Since the data has been modified, we need to
-      // call the refresh method to make the colors
-      // update effective.
-      s.refresh()
-    })
+    let toKeep = s.graph.neighbors(nodeId);
+    toKeep[nodeId] = e.data.node;
 
-    // When the stage is clicked, we just color each
-    // node and edge with its original color.
-    s.bind('clickStage', function (e) {
-      s.graph.nodes().forEach(function (n) {
-        n.color = n.originalColor
-      })
+    // Draw the nodes that should stay activated
+    s.graph.activate(toKeep);
 
-      s.graph.edges().forEach(function (e) {
-        e.color = e.originalColor
-      })
+    // Since the data has been modified, we need to
+    // call the refresh method to make the colors
+    // update effective.
+    s.refresh();
+  });
 
-      // Same as in the previous event:
-      s.refresh()
-    })
-  }
-)
+  // When the stage is clicked, we just color each
+  // node and edge with its original color.
+  s.bind("clickStage", function(e) {
+    s.graph.nodes().forEach(function(n) {
+      n.color = n.originalColor;
+    });
 
-// D3
-var margin = { top: 100, right: 10, bottom: 100, left: 10 }
+    s.graph.edges().forEach(function(e) {
+      e.color = e.originalColor;
+    });
+
+    // Same as in the previous event:
+    s.refresh();
+  });
+});
+/*
+ // -------------------------- D3 --------------------------
+var margin = { top: 10, right: 10, bottom: 30, left: 10 }
 
 var width = 800 - margin.left - margin.right
 
-var height = 300 - margin.top - margin.bottom
+var height = 100 - margin.top - margin.bottom
 
 var x = d3.scaleTime()
   .domain([new Date(2014, 9, 23), new Date(2015, 1, 30) - 1]) // DATA VARIABLE ON SLIDER  new Date(2015, 4, 30)
@@ -153,6 +182,11 @@ function brushended () {
     d1[1] = d3.timeDay.offset(d1[0])
   }
 
-  //sigma.classes.graph.nodes() // (["159966", '81694', '157447'])
+  // sigma.classes.graph.nodes() // (["159966", '81694', '157447'])
   d3.select(this).transition().call(d3.event.target.move, d1.map(x))
+  //called();
+
 }
+  */
+//document.addEventListener(onclick, alert("poop"))
+//document.getElementById('start').addEventListener("change",alert("poop"))
