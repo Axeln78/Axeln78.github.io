@@ -42,10 +42,14 @@
     <script src="./lib/sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.layout.forceAtlas2.min.js"></script>
 
+    <!-- Plotly
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <script src="./lib/plotly-latest.min.js"></script>
+
     <!-- D3 Inclusion
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <script src="./lib/d3js.org:d3-brush.v1.min.js"></script>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <!-- <script src="./lib/d3js.org:d3-brush.v1.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script> -->
   </head>
 
   <!-- Primary Page Layout
@@ -97,11 +101,34 @@
       </div>
 
       <div>
-        <input type="range" id="range" name="date" min="0" max="5000" />
+        <input type="range" id="range" name="date" min="0" max="5277" />
         <label for="date">TimeLine</label>
       </div>
-      <script type="text/javascript" src="index.js"></script>
     </div>
+
+    <!-- Plot -->
+    <div class="container">
+      <div class="row">
+        <div class="box" id="Plot"></div>
+      </div>
+    </div>
+
+    <div id="tester" style="width:600px;height:250px;"></div>
+    <!-- <script>
+      TESTER = document.getElementById("Plot");
+      Plotly.plot(
+        TESTER,
+        [
+          {
+            x: [1, 2, 3, 4, 5],
+            y: [1, 2, 4, 8, 16]
+          }
+        ],
+        {
+          margin: { t: 0 }
+        }
+      );
+    </script> -->
 
     <!-- Link to dev -->
     <div class="container" id="testEnv" style="margin-top: 10%">
@@ -128,6 +155,8 @@
         </div>
       </div>
     </div>
+
+    <script type="text/javascript" src="index.js"></script>
 
     <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->

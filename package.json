@@ -6,6 +6,7 @@
   "dependencies": {
     "d3-brush": "^1.0.6",
     "jquery": "^3.3.1",
+    "plotly": "^1.0.6",
     "uglify-js": "^3.4.9"
   },
   "devDependencies": {

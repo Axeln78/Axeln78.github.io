@@ -18,7 +18,7 @@ sigma.classes.graph.addMethod("neighbors", function(nodeId) {
 
 /*  a function that takes as input a list of ids and outputs the list of node */
 
-sigma.classes.graph.addMethod("listIDs", function(someIds) {
+sigma.classes.graph.addMethod("nodeFromID", function(someIds) {
   // var someIds = ["159966", '81694', '157447']
   var k;
 
@@ -69,17 +69,35 @@ sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
   //document.getElementById('range').onchange = function() { called() }
   document.getElementById("range").onchange = function() {
     alert(this.value);
-    //var someIds = ["159966", '81694', '157447']
-    s.graph.nodes().forEach(function(n) {
-      n.color = "#eee";
+    var someIds = ["159966", "81694", "157447"];
+    var list = s.graph.nodeFromID(someIds);
+    s.graph.activate(list);
+    /*
+    s.graph.edges().forEach(function(e) {
+      e.color = "#eee";
     });
+    */
+    s.refresh();
   };
 
-  // Listeners // try force atla afterwards
+  // Listeners Force Atlas 2 afterwards
+  // TODO: add a timer to avoid getting stuck in the Force atlas calculus
   var force = false;
   document.getElementById("layout").onclick = function() {
-    if (!force) s.startForceAtlas2({ slowDown: 10 });
-    else s.stopForceAtlas2();
+    if (!force) {
+      s.startForceAtlas2({
+        slowDown: 1,
+        linLogMode: true,
+        iterationsPerRender: 1,
+        scalingRatio: 2,
+        worker: true,
+        barnesHutOptimize: true
+      });
+      this.textContent = "Stop";
+    } else {
+      s.stopForceAtlas2();
+      this.textContent = "Start";
+    }
     force = !force;
   };
 
@@ -92,7 +110,7 @@ sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
     let nodeId = e.data.node.id; // This is only an integer
 
     let toKeep = s.graph.neighbors(nodeId);
-    toKeep[nodeId] = e.data.node;
+    toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
 
     // Draw the nodes that should stay activated
     s.graph.activate(toKeep);
@@ -114,3 +132,40 @@ sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
     s.refresh();
   });
 });
+
+// ---------- Interactive plot part -------------- //
+
+Plotly.d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", function(err, rows){
+
+  function unpack(rows, key) {
+  return rows.map(function(row) { return row[key]; });
+}
+
+
+var trace1 = {
+  type: "scatter",
+  mode: "lines",
+  name: 'AAPL High',
+  x: unpack(rows, 'Date'),
+  y: unpack(rows, 'AAPL.High'),
+  line: {color: '#17BECF'}
+}
+
+var trace2 = {
+  type: "scatter",
+  mode: "lines",
+  name: 'AAPL Low',
+  x: unpack(rows, 'Date'),
+  y: unpack(rows, 'AAPL.Low'),
+  line: {color: '#7F7F7F'}
+}
+
+var data = [trace1,trace2];
+
+var layout = {
+  title: 'Basic Time Series',
+};
+
+Plotly.newPlot("Plot", data,layout);
+})
+
