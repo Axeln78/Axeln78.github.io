@@ -135,37 +135,36 @@ sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
 
 // ---------- Interactive plot part -------------- //
 
-Plotly.d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", function(err, rows){
-
+Plotly.d3.csv("./data/Data2.csv", function(err, rows) {
   function unpack(rows, key) {
-  return rows.map(function(row) { return row[key]; });
-}
+    return rows.map(function(row) {
+      return row[key];
+    });
+  }
 
+  var trace1 = {
+    type: "scatter",
+    mode: "lines",
+    name: "12",
+    x: unpack(rows, "Date"),
+    y: unpack(rows, "12"),
+    line: { color: "#17BECF" }
+  };
 
-var trace1 = {
-  type: "scatter",
-  mode: "lines",
-  name: 'AAPL High',
-  x: unpack(rows, 'Date'),
-  y: unpack(rows, 'AAPL.High'),
-  line: {color: '#17BECF'}
-}
+  var trace2 = {
+    type: "scatter",
+    mode: "lines",
+    name: "358",
+    x: unpack(rows, "Date"),
+    y: unpack(rows, "358"),
+    line: { color: "#7F7F7F" }
+  };
 
-var trace2 = {
-  type: "scatter",
-  mode: "lines",
-  name: 'AAPL Low',
-  x: unpack(rows, 'Date'),
-  y: unpack(rows, 'AAPL.Low'),
-  line: {color: '#7F7F7F'}
-}
+  var data = [trace1, trace2];
 
-var data = [trace1,trace2];
+  var layout = {
+    title: "Basic Time Series"
+  };
 
-var layout = {
-  title: 'Basic Time Series',
-};
-
-Plotly.newPlot("Plot", data,layout);
-})
-
+  Plotly.newPlot("Plot", data, layout);
+});
