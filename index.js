@@ -1,5 +1,11 @@
 // import sigma from 'sigma_js/sigma.min.js'
 
+Date.prototype.addDays = function(days) {
+  var date = new Date(this.valueOf());
+  date.setDate(date.getDate() + days);
+  return date;
+};
+
 // Add a method to the graph model that returns an
 // object with every neighbors of a node inside:
 sigma.classes.graph.addMethod("neighbors", function(nodeId) {
@@ -78,6 +84,12 @@ sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
     });
     */
     s.refresh();
+
+    var userEnteredDate = new Date("2014-09-24");
+    var myDate = new Date();
+    myDate = userEnteredDate.addDays(parseInt(this.value));
+    var dateRange = [userEnteredDate, myDate];
+    PlotI(someIds, dateRange);
   };
 
   // Listeners Force Atlas 2 afterwards
@@ -135,36 +147,43 @@ sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
 
 // ---------- Interactive plot part -------------- //
 
-Plotly.d3.csv("./data/Data2.csv", function(err, rows) {
-  function unpack(rows, key) {
-    return rows.map(function(row) {
-      return row[key];
+function PlotI(namelist, date) {
+  // CSV reading, need to be changed place right?
+  Plotly.d3.csv("./data/Data2.csv", function(err, rows) {
+    function unpack(rows, key) {
+      return rows.map(function(row) {
+        return row[key];
+      });
+    }
+
+    var data = [];
+
+    namelist.forEach(function(n) {
+      let trace = {
+        type: "scatter",
+        mode: "lines",
+        name: n,
+        x: unpack(rows, "Date"),
+        y: unpack(rows, n),
+        line: { color: "#1FBECF" }
+      };
+
+      data.push(trace);
     });
-  }
 
-  var trace1 = {
-    type: "scatter",
-    mode: "lines",
-    name: "12",
-    x: unpack(rows, "Date"),
-    y: unpack(rows, "12"),
-    line: { color: "#17BECF" }
-  };
+    var layout = {
+      title: "Custom Range",
+      xaxis: {
+        range: date, // Change this range to the new dates!
+        type: "date"
+      },
+      yaxis: {
+        autorange: true,
+        range: [86.8700008333, 138.870004167],
+        type: "linear"
+      }
+    };
 
-  var trace2 = {
-    type: "scatter",
-    mode: "lines",
-    name: "358",
-    x: unpack(rows, "Date"),
-    y: unpack(rows, "358"),
-    line: { color: "#7F7F7F" }
-  };
-
-  var data = [trace1, trace2];
-
-  var layout = {
-    title: "Basic Time Series"
-  };
-
-  Plotly.newPlot("Plot", data, layout);
-});
+    Plotly.newPlot("Plot", data, layout);
+  });
+}
