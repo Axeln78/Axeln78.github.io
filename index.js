@@ -6,6 +6,12 @@ Date.prototype.addDays = function(days) {
   return date;
 };
 
+var selected = [];
+var plotInfo = {
+  startDate: new Date("2014-09-24"),
+  endDate: new Date("2015-04-30")
+};
+
 // Add a method to the graph model that returns an
 // object with every neighbors of a node inside:
 sigma.classes.graph.addMethod("neighbors", function(nodeId) {
@@ -25,18 +31,18 @@ sigma.classes.graph.addMethod("neighbors", function(nodeId) {
 /*  a function that takes as input a list of ids and outputs the list of node */
 
 sigma.classes.graph.addMethod("nodeFromID", function(someIds) {
-  // var someIds = ["159966", '81694', '157447']
   var k;
-
-  var idS = {};
+  var idS = [];
 
   for (k in someIds) {
-    idS[someIds[k]] = this.nodesIndex[someIds[k]];
+    //idS[someIds[k]] = this.nodesIndex[someIds[k]]; object
+    idS.push(this.nodesIndex[someIds[k]]); // array
   }
-  return idS;
+  return idS; // returns array
 });
 
-sigma.classes.graph.addMethod("activate", function(toKeep) {
+// Change this function to array based
+sigma.classes.graph.addMethod("activateInd", function(toKeep) {
   this.nodes().forEach(function(n) {
     if (toKeep[n.id]) {
       n.color = n.originalColor;
@@ -44,6 +50,34 @@ sigma.classes.graph.addMethod("activate", function(toKeep) {
       n.color = "#eee";
     }
   });
+
+  this.edges().forEach(function(e) {
+    if (toKeep[e.source] && toKeep[e.target]) {
+      e.color = e.originalColor;
+    } else {
+      e.color = "#eee";
+    }
+  });
+});
+
+sigma.classes.graph.addMethod("activateArr", function(toKeep) {
+  // tokeep Takes array of nodes
+  this.nodes().forEach(function(n) {
+    n.color = "#eee";
+  });
+
+  for (let i = 0; i < toKeep.length; i++) {
+    this.nodesIndex[toKeep[i].id].color = this.nodesIndex[
+      toKeep[i].id
+    ].originalColor;
+  }
+
+  // // TODO: turn this into an array liking FUNCTION
+  for (let i = 0; i < toKeep.length; i++) {
+    this.nodesIndex[toKeep[i].id].color = this.nodesIndex[
+      toKeep[i].id
+    ].originalColor;
+  }
 
   this.edges().forEach(function(e) {
     if (toKeep[e.source] && toKeep[e.target]) {
@@ -72,26 +106,63 @@ sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
     e.originalColor = e.color;
   });
 
-  //document.getElementById('range').onchange = function() { called() }
   document.getElementById("range").onchange = function() {
-    alert(this.value);
-    var someIds = ["159966", "81694", "157447"];
-    var list = s.graph.nodeFromID(someIds);
-    s.graph.activate(list);
-    /*
-    s.graph.edges().forEach(function(e) {
-      e.color = "#eee";
-    });
-    */
-    s.refresh();
+    var list = s.graph.nodeFromID(selected);
+    // Update the graph activation visual
+    s.graph.activateArr(list);
 
-    var userEnteredDate = new Date("2014-09-24");
-    var myDate = new Date();
-    myDate = userEnteredDate.addDays(parseInt(this.value));
-    var dateRange = [userEnteredDate, myDate];
-    PlotI(someIds, dateRange);
+    plotInfo.endDate = plotInfo.startDate.addDays(parseInt(this.value));
+    //var dateRange = [startDate, endDate];
+    PlotI(list);
+
+    s.refresh();
   };
 
+  s.bind("clickNode", function(e) {
+    let nodeId = e.data.node.id; // This is only an integer
+
+    // if the node is not selected it will add it otherwise remove it from the array
+    if (selected.lastIndexOf(nodeId) != -1) {
+      selected.splice(selected.lastIndexOf(nodeId), 1);
+    } else selected.push(nodeId);
+
+    nlist = s.graph.nodeFromID(selected);
+
+    //let toKeep = s.graph.neighbors(nodeId);
+    //toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
+
+    // Draw the nodes that should stay activated
+    //s.graph.activateInd(toKeep);
+    s.graph.activateArr(nlist);
+    PlotI(nlist);
+    s.refresh();
+  });
+
+  // When the stage is clicked, we just color each
+  // node and edge with its original color.
+  function restartGV() {
+    s.graph.nodes().forEach(function(n) {
+      n.color = n.originalColor;
+    });
+
+    s.graph.edges().forEach(function(e) {
+      e.color = e.originalColor;
+    });
+
+    s.refresh();
+  }
+
+  s.bind("clickStage", function(e) {
+    restartGV();
+  });
+
+  document.getElementById("selectionR").onclick = function() {
+    selected = [];
+
+    nlist = s.graph.nodeFromID(selected);
+    restartGV();
+    PlotI(nlist);
+  };
   // Listeners Force Atlas 2 afterwards
   // TODO: add a timer to avoid getting stuck in the Force atlas calculus
   var force = false;
@@ -112,42 +183,11 @@ sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
     }
     force = !force;
   };
-
-  // When a node is clicked, we check for each node
-  // if it is a neighbor of the clicked one. If not,
-  // we set its color as grey, and else, it takes its
-  // original color.
-  // only keep edges that have both extremities colored.
-  s.bind("clickNode", function(e) {
-    let nodeId = e.data.node.id; // This is only an integer
-
-    let toKeep = s.graph.neighbors(nodeId);
-    toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
-
-    // Draw the nodes that should stay activated
-    s.graph.activate(toKeep);
-
-    s.refresh();
-  });
-
-  // When the stage is clicked, we just color each
-  // node and edge with its original color.
-  s.bind("clickStage", function(e) {
-    s.graph.nodes().forEach(function(n) {
-      n.color = n.originalColor;
-    });
-
-    s.graph.edges().forEach(function(e) {
-      e.color = e.originalColor;
-    });
-
-    s.refresh();
-  });
 });
 
 // ---------- Interactive plot part -------------- //
-
-function PlotI(namelist, date) {
+// TODO: go over to only use the list to have the spacial info of the color of the node, maybe with time it will prove more robust
+function PlotI(nodes) {
   // CSV reading, need to be changed place right?
   Plotly.d3.csv("./data/Data2.csv", function(err, rows) {
     function unpack(rows, key) {
@@ -157,15 +197,14 @@ function PlotI(namelist, date) {
     }
 
     var data = [];
-
-    namelist.forEach(function(n) {
+    nodes.forEach(function(n) {
       let trace = {
         type: "scatter",
         mode: "lines",
-        name: n,
+        name: n.label,
         x: unpack(rows, "Date"),
-        y: unpack(rows, n),
-        line: { color: "#1FBECF" }
+        y: unpack(rows, n.id),
+        line: { color: n.color }
       };
 
       data.push(trace);
@@ -174,12 +213,13 @@ function PlotI(namelist, date) {
     var layout = {
       title: "Custom Range",
       xaxis: {
-        range: date, // Change this range to the new dates!
+        //range: date, // Change this range to the new dates!
+        range: [plotInfo.startDate, plotInfo.endDate],
         type: "date"
       },
       yaxis: {
         autorange: true,
-        range: [86.8700008333, 138.870004167],
+        range: [87, 138],
         type: "linear"
       }
     };
