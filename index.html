@@ -41,6 +41,9 @@
     <script src="./lib/sigma_js/sigma.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.layout.forceAtlas2.min.js"></script>
+    <script src="./lib/sigma_js/plugins/sigma.plugins.filter.min.js"></script>
+    <script src="./lib/sigma_js/plugins/sigma.exporters.svg.min.js"></script>
+    <script src="./lib/sigma_js/plugins/sigma.layout.noverlap.min.js"></script>
 
     <!-- Plotly
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -98,6 +101,7 @@
       <div class="row" id="Render">
         <button id="layout" type="button">Layout</button>
         <button id="selectionR" type="button">Reset selection</button>
+        <button id="export" type="export">Export</button>
         <div class="box" id="sigma-container2"></div>
       </div>
 

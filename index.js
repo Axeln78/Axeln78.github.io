@@ -32,13 +32,14 @@ sigma.classes.graph.addMethod("neighbors", function(nodeId) {
 
 sigma.classes.graph.addMethod("nodeFromID", function(someIds) {
   var k;
-  var idS = [];
+  var idSArr = [];
+  var idSObj = {};
 
   for (k in someIds) {
-    //idS[someIds[k]] = this.nodesIndex[someIds[k]]; object
-    idS.push(this.nodesIndex[someIds[k]]); // array
+    //idSObj[someIds[k]] = this.nodesIndex[someIds[k]]; //object
+    idSArr.push(this.nodesIndex[someIds[k]]); // array
   }
-  return idS; // returns array
+  return idSArr; // returns array
 });
 
 // Change this function to array based
@@ -62,9 +63,9 @@ sigma.classes.graph.addMethod("activateInd", function(toKeep) {
 
 sigma.classes.graph.addMethod("activateArr", function(toKeep) {
   // tokeep Takes array of nodes
-  this.nodes().forEach(function(n) {
+  /*this.nodes().forEach(function(n) {
     n.color = "#eee";
-  });
+  }); */
 
   for (let i = 0; i < toKeep.length; i++) {
     this.nodesIndex[toKeep[i].id].color = this.nodesIndex[
@@ -79,13 +80,13 @@ sigma.classes.graph.addMethod("activateArr", function(toKeep) {
     ].originalColor;
   }
 
-  this.edges().forEach(function(e) {
+  /*this.edges().forEach(function(e) {
     if (toKeep[e.source] && toKeep[e.target]) {
       e.color = e.originalColor;
     } else {
       e.color = "#eee";
     }
-  });
+  });*/
 });
 
 // MAKE A TEST FUNCTION
@@ -96,7 +97,7 @@ s2.addRenderer({
   type: "WebGL",
   container: "sigma-container2"
 });
-sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
+sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   s.refresh();
   //Save the original colors
   s.graph.nodes().forEach(function(n) {
@@ -107,15 +108,25 @@ sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
   });
 
   document.getElementById("range").onchange = function() {
-    var list = s.graph.nodeFromID(selected);
+    // var list = s.graph.nodeFromID(selected);
     // Update the graph activation visual
-    s.graph.activateArr(list);
+    // s.graph.activateArr(list);
 
     plotInfo.endDate = plotInfo.startDate.addDays(parseInt(this.value));
-    //var dateRange = [startDate, endDate];
     PlotI(list);
 
-    s.refresh();
+    //s.refresh();
+  };
+
+  // Export FUNCTION
+  document.getElementById("export").onclick = function() {
+    console.log("exporting...");
+    var output = s.toSVG({
+      download: true,
+      filename: "mygraph.svg",
+      size: 1000
+    });
+    // console.log(output);
   };
 
   s.bind("clickNode", function(e) {
@@ -126,15 +137,15 @@ sigma.parsers.gexf("/data/VizWiki1.gexf", s2, function(s) {
       selected.splice(selected.lastIndexOf(nodeId), 1);
     } else selected.push(nodeId);
 
-    nlist = s.graph.nodeFromID(selected);
+    nlistArr = s.graph.nodeFromID(selected);
 
-    //let toKeep = s.graph.neighbors(nodeId);
-    //toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
+    let toKeep = s.graph.neighbors(nodeId);
+    toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
 
     // Draw the nodes that should stay activated
-    //s.graph.activateInd(toKeep);
-    s.graph.activateArr(nlist);
-    PlotI(nlist);
+    s.graph.activateInd(toKeep);
+    s.graph.activateArr(nlistArr);
+    PlotI(nlistArr);
     s.refresh();
   });
 
@@ -213,7 +224,6 @@ function PlotI(nodes) {
     var layout = {
       title: "Custom Range",
       xaxis: {
-        //range: date, // Change this range to the new dates!
         range: [plotInfo.startDate, plotInfo.endDate],
         type: "date"
       },
