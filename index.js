@@ -89,14 +89,25 @@ sigma.classes.graph.addMethod("activateArr", function(toKeep) {
   });*/
 });
 
-// MAKE A TEST FUNCTION
-//new captor_constructor(target, camera, settings)
+// Sigma settings: https://github.com/jacomyal/sigma.js/wiki/Settings
 
-s2 = new sigma();
-s2.addRenderer({
-  type: "WebGL",
-  container: "sigma-container2"
-});
+sigmaConfig = {
+  renderer: {
+    type: "WebGL",
+    container: "sigma-container2"
+  },
+  settings: {
+    //drawEdges: false,
+    //drawLabels: false,
+    scalingMode: "outside",
+    //maxEdgeSize: 1,
+    //minEdgeSize: 0.5,
+    labelThreshold: 14
+  }
+};
+
+var s2 = new sigma(sigmaConfig);
+
 sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   s.refresh();
   //Save the original colors
