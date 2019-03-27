@@ -14,6 +14,3 @@ https://github.com/d3/d3-brush
 
 Ngraph by anvanka :
 ngraph.graph
-
-
-[![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
