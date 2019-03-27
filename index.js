@@ -118,6 +118,16 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     e.originalColor = e.color;
   });
 
+  // Configure the noverlap layout:
+  var noverlapListener = s.configNoverlap({
+    nodeMargin: 0.1,
+    scaleNodes: 1.05,
+    gridSize: 75,
+    easing: "quadraticInOut", // animation transition function
+    speed: 4, // 2 def
+    duration: 100 // animation duration.
+  });
+
   document.getElementById("range").onchange = function() {
     // var list = s.graph.nodeFromID(selected);
     // Update the graph activation visual
@@ -204,6 +214,10 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
       this.textContent = "Start";
     }
     force = !force;
+  };
+
+  document.getElementById("noverlap").onclick = function() {
+    s.startNoverlap();
   };
 });
 
