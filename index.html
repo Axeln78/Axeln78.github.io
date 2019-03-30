@@ -41,10 +41,10 @@
     <script src="./lib/sigma_js/sigma.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.layout.forceAtlas2.min.js"></script>
-    <script src="./lib/sigma_js/plugins/sigma.plugins.filter.min.js"></script>
-    <script src="./lib/sigma_js/plugins/sigma.exporters.svg.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.layout.noverlap.min.js"></script>
+    <script src="./lib/sigma_js/plugins/sigma.plugins.filter.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.plugins.animate.min.js"></script>
+    <script src="./lib/sigma_js/plugins/sigma.exporters.svg.min.js"></script>
 
     <!-- Plotly
     –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -103,7 +103,33 @@
         <button id="layout" type="button">Layout</button>
         <button id="selectionR" type="button">Reset selection</button>
         <button id="export" type="export">Export</button>
-        <button id="noverlap" type="button">Noverlap</button>
+        <button id="noverlap" type="button">Noverlap</button><br />
+
+        Lower threshold:
+        <input type="number" id="lower-threshold" name="lthresh" value="0" />
+        higher threshold:
+        <input
+          type="number"
+          id="higher-threshold"
+          name="htresh"
+          value="1000"
+        /><br />
+
+        <div>
+          <input
+            type="range"
+            id="rangeDegree"
+            name="degree"
+            min="0"
+            max="35"
+            value="0"
+          />
+          Max degree <span id="max-degree-value">0</span> selected min degree
+          <span id="min-degree-value">0</span><br />
+          Min edge size:
+          <input type="number" id="edge-threshold" name="ethresh" value="0" />
+        </div>
+
         <div class="box" id="sigma-container2"></div>
       </div>
 
@@ -113,8 +139,8 @@
           id="range"
           name="date"
           min="0"
-          max="220"
-          value="220"
+          max="100"
+          value="0"
         />
         <label for="date">TimeLine</label>
       </div>
@@ -145,9 +171,10 @@
           <h5>Exernal resources and links:</h5>
           <p>
             For the Structure of the website, there is a simply built boiler
-            plate in CSS called "Skeleton".<a href="http://www.getskeleton.com"
-              >Skeleton documentation</a
-            >
+            plate in CSS called "Skeleton".
+            <a href="http://www.getskeleton.com">
+              Skeleton documentation
+            </a>
           </p>
         </div>
       </div>

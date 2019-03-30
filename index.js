@@ -6,11 +6,22 @@ Date.prototype.addDays = function(days) {
   return date;
 };
 
+// Array / Object holding the values of the selected nodes
 var selected = [];
+
+// Object holding information on the information needed for the time-display
+// linked with the activity
+
 var plotInfo = {
   startDate: new Date("2014-09-24"),
-  endDate: new Date("2015-04-30")
+  endDate: new Date("2015-04-30"),
+  selectedStartDate: new Date("2014-09-24"),
+  selectedEndDate: new Date("2015-04-30")
 };
+
+//Readdata();
+
+// ---------------- Methods added to Sigma -------------------- //
 
 // Add a method to the graph model that returns an
 // object with every neighbors of a node inside:
@@ -89,8 +100,8 @@ sigma.classes.graph.addMethod("activateArr", function(toKeep) {
   });*/
 });
 
+// Configuration of sigma
 // Sigma settings: https://github.com/jacomyal/sigma.js/wiki/Settings
-
 sigmaConfig = {
   renderer: {
     type: "WebGL",
@@ -106,10 +117,22 @@ sigmaConfig = {
   }
 };
 
+// ------ Sigma object creation and graph inportation---------- //
 var s2 = new sigma(sigmaConfig);
 
 sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   s.refresh();
+  // ------- INIT --------- //
+  var filter = new sigma.plugins.filter(s);
+  var maxDegree = 0;
+
+  // read nodes
+  s.graph.nodes().forEach(function(n) {
+    maxDegree = Math.max(maxDegree, s.graph.degree(n.id));
+  });
+  document.getElementById("max-degree-value").textContent = maxDegree;
+  document.getElementById("rangeDegree").max = maxDegree;
+
   //Save the original colors
   s.graph.nodes().forEach(function(n) {
     n.originalColor = n.color;
@@ -118,26 +141,19 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     e.originalColor = e.color;
   });
 
-  // Configure the noverlap layout:
-  var noverlapListener = s.configNoverlap({
-    nodeMargin: 0.1,
-    scaleNodes: 1.05,
-    gridSize: 75,
-    easing: "quadraticInOut", // animation transition function
-    speed: 4, // 2 def
-    duration: 100 // animation duration.
-  });
+  // ---------------- ELEMENT linked functions -------------------- //
+  // Needs to go and get the data information of the activity in order to compare it here. Otherwise the interaction is good
 
-  document.getElementById("range").onchange = function() {
-    // var list = s.graph.nodeFromID(selected);
-    // Update the graph activation visual
-    // s.graph.activateArr(list);
-
-    plotInfo.endDate = plotInfo.startDate.addDays(parseInt(this.value));
-    PlotI(list);
-
-    //s.refresh();
-  };
+  /*document.getElementById("range").oninput = function() {
+    let timestamp = this.value;
+    lt = document.getElementById("lower-threshold").textContent;
+    filter
+      .undo("activity")
+      .nodesBy(function(n) {
+        return this.degree(n.id) > size;    // this is s.graph
+      }, "activity")
+      .apply();
+  };*/
 
   // Export FUNCTION
   document.getElementById("export").onclick = function() {
@@ -170,6 +186,34 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     s.refresh();
   });
 
+  // -------------------- FILTER -------------------- //
+  // TODO: Filter edge lenths '(1)'
+  // TODO: Filter the viewed nodes
+
+  // '(1)'  - - need to remove the label by hand here
+  document.getElementById("edge-threshold").onchange = function() {
+    // need to check if the label changes with the zoom!
+    length = this.value;
+    filter
+      .undo("Short edge cutting")
+      .edgesBy(function(e) {
+        return e.label > length;
+      }, "Short edge cutting")
+      .apply();
+  };
+
+  document.getElementById("rangeDegree").oninput = function() {
+    let size = this.value;
+    document.getElementById("min-degree-value").textContent = size;
+    filter
+      .undo("degree")
+      .nodesBy(function(n) {
+        return this.degree(n.id) > size;
+      }, "degree")
+      .apply();
+  };
+
+  // -------------------- Selection and more general functions -------------- //
   // When the stage is clicked, we just color each
   // node and edge with its original color.
   function restartGV() {
@@ -190,13 +234,25 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
 
   document.getElementById("selectionR").onclick = function() {
     selected = [];
-
     nlist = s.graph.nodeFromID(selected);
     restartGV();
     PlotI(nlist);
   };
+
+  // -------------------- LAYOUT & plugins -------------------- //
+
   // Listeners Force Atlas 2 afterwards
   // TODO: add a timer to avoid getting stuck in the Force atlas calculus
+  // Configure the noverlap layout:
+  var noverlapListener = s.configNoverlap({
+    nodeMargin: 0.1,
+    scaleNodes: 1.05,
+    gridSize: 75,
+    easing: "quadraticInOut", // animation transition function
+    speed: 4, // 2 def
+    duration: 400 // animation duration.
+  });
+
   var force = false;
   document.getElementById("layout").onclick = function() {
     if (!force) {
@@ -212,6 +268,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     } else {
       s.stopForceAtlas2();
       this.textContent = "Start";
+      s.startNoverlap();
     }
     force = !force;
   };
@@ -221,17 +278,26 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   };
 });
 
-// ---------- Interactive plot part -------------- //
-// TODO: go over to only use the list to have the spacial info of the color of the node, maybe with time it will prove more robust
+// -------------------- Interactive plot part ------------------------ //
+// TODO: go over to only use the list to have the spacial info of the color of
+// the node, maybe with time it will prove more robust
+
+plot = document.getElementById("Plot");
+
+var gdata = [];
+// TODO: Read the data only one and store interval
+
+//function Readdata() {
 function PlotI(nodes) {
-  // CSV reading, need to be changed place right?
-  Plotly.d3.csv("./data/Data2.csv", function(err, rows) {
+  Plotly.d3.csv("./data/Data_hourly.csv", function(err, rows) {
     function unpack(rows, key) {
       return rows.map(function(row) {
         return row[key];
       });
     }
+    gdata = rows;
 
+    plot = document.getElementById("Plot");
     var data = [];
     nodes.forEach(function(n) {
       let trace = {
@@ -259,6 +325,14 @@ function PlotI(nodes) {
       }
     };
 
-    Plotly.newPlot("Plot", data, layout);
+    Plotly.newPlot(plot, data, layout);
+
+    // When the user zooms on the plot, he modifies the selected time range,
+    // this information is then sored in the global plotInfo variable
+    plot.on("plotly_relayout", function(eventdata) {
+      plotInfo.selectedStartDate = eventdata["xaxis.range[0]"];
+      console.log(plotInfo.selectedStartDate);
+      plotInfo.selectedEndDate = eventdata["xaxis.range[1]"];
+    });
   });
 }
