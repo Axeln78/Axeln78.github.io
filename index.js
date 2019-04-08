@@ -7,7 +7,19 @@ Date.prototype.addDays = function(days) {
 };
 
 // Array / Object holding the values of the selected nodes
-var selected = [];
+var selectedO = {
+  obj: {},
+  arr: [],
+  addNode: function(id) {
+    doc.alert("aaaaa");
+  },
+  reset: function() {
+    this.obj = {};
+    this.arr = [];
+  }
+};
+// TODO: eliminate selected and put selectedO
+selected = [];
 
 // Object holding information on the information needed for the time-display
 // linked with the activity
@@ -19,7 +31,14 @@ var plotInfo = {
   selectedEndDate: new Date("2015-04-30")
 };
 
-//Readdata();
+// Read the activity data
+var gdata = [];
+
+Plotly.d3.csv("./data/Data_hourly.csv", function(err, rows) {
+  gdata = rows;
+});
+//plot initial empty box
+PlotI([]);
 
 // ---------------- Methods added to Sigma -------------------- //
 
@@ -169,7 +188,8 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   s.bind("clickNode", function(e) {
     let nodeId = e.data.node.id; // This is only an integer
 
-    // if the node is not selected it will add it otherwise remove it from the array
+    // if the node is not selected it will add it otherwise remove it from
+    // the array
     if (selected.lastIndexOf(nodeId) != -1) {
       selected.splice(selected.lastIndexOf(nodeId), 1);
     } else selected.push(nodeId);
@@ -180,6 +200,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
 
     // Draw the nodes that should stay activated
+    // TURN INTO 1 func!
     s.graph.activateInd(toKeep);
     s.graph.activateArr(nlistArr);
     PlotI(nlistArr);
@@ -191,15 +212,19 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   // TODO: Filter the viewed nodes
 
   // '(1)'  - - need to remove the label by hand here
-  document.getElementById("edge-threshold").onchange = function() {
-    // need to check if the label changes with the zoom!
-    length = this.value;
+
+  function filterEdges(length) {
     filter
       .undo("Short edge cutting")
       .edgesBy(function(e) {
         return e.label > length;
       }, "Short edge cutting")
       .apply();
+  }
+  document.getElementById("edge-threshold").onchange = function() {
+    // need to check if the label changes with the zoom!
+    length = this.value;
+    filterEdges(length);
   };
 
   document.getElementById("rangeDegree").oninput = function() {
@@ -233,6 +258,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   });
 
   document.getElementById("selectionR").onclick = function() {
+    // selected.reset();
     selected = [];
     nlist = s.graph.nodeFromID(selected);
     restartGV();
@@ -284,55 +310,52 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
 
 plot = document.getElementById("Plot");
 
-var gdata = [];
 // TODO: Read the data only one and store interval
 
 //function Readdata() {
+
+function unpack(rows, key) {
+  return rows.map(function(row) {
+    return row[key];
+  });
+}
+
 function PlotI(nodes) {
-  Plotly.d3.csv("./data/Data_hourly.csv", function(err, rows) {
-    function unpack(rows, key) {
-      return rows.map(function(row) {
-        return row[key];
-      });
-    }
-    gdata = rows;
-
-    plot = document.getElementById("Plot");
-    var data = [];
-    nodes.forEach(function(n) {
-      let trace = {
-        type: "scatter",
-        mode: "lines",
-        name: n.label,
-        x: unpack(rows, "Date"),
-        y: unpack(rows, n.id),
-        line: { color: n.color }
-      };
-
-      data.push(trace);
-    });
-
-    var layout = {
-      title: "Custom Range",
-      xaxis: {
-        range: [plotInfo.startDate, plotInfo.endDate],
-        type: "date"
-      },
-      yaxis: {
-        autorange: true,
-        range: [87, 138],
-        type: "linear"
-      }
+  plot = document.getElementById("Plot");
+  var data = [];
+  nodes.forEach(function(n) {
+    let trace = {
+      type: "scatter",
+      mode: "lines",
+      name: n.label,
+      x: unpack(gdata, "Date"),
+      y: unpack(gdata, n.id),
+      line: { color: n.color }
     };
 
-    Plotly.newPlot(plot, data, layout);
+    data.push(trace);
+  });
 
-    // When the user zooms on the plot, he modifies the selected time range,
-    // this information is then sored in the global plotInfo variable
-    plot.on("plotly_relayout", function(eventdata) {
-      plotInfo.selectedStartDate = eventdata["xaxis.range[0]"];
-      console.log(plotInfo.selectedStartDate);
-      plotInfo.selectedEndDate = eventdata["xaxis.range[1]"];
-    });
+  var layout = {
+    title: "Custom Range",
+    xaxis: {
+      range: [plotInfo.startDate, plotInfo.endDate],
+      type: "date"
+    },
+    yaxis: {
+      autorange: true,
+      range: [87, 138],
+      type: "linear"
+    }
+  };
+
+  Plotly.newPlot(plot, data, layout);
+
+  // When the user zooms on the plot, he modifies the selected time range,
+  // this information is then sored in the global plotInfo variable
+  plot.on("plotly_relayout", function(eventdata) {
+    plotInfo.selectedStartDate = eventdata["xaxis.range[0]"];
+    console.log(plotInfo.selectedStartDate);
+    plotInfo.selectedEndDate = eventdata["xaxis.range[1]"];
   });
 }
