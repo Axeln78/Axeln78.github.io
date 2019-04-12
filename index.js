@@ -7,7 +7,7 @@ Date.prototype.addDays = function(days) {
 };
 
 // Array / Object holding the values of the selected nodes
-var selectedO = {
+var selected = {
   selectionMulti: false, // Bool for the selection mode
   obj: {},
   arr: [],
@@ -37,8 +37,6 @@ var selectedO = {
     console.log("Selection reset");
   }
 };
-// TODO: eliminate selected and put selectedO
-//selected = [];
 
 // Object holding information on the information needed for the time-display
 // linked with the activity
@@ -70,7 +68,7 @@ sigma.classes.graph.addMethod("neighbors", function(nodeId) {
 
 /*  a function that takes as input a list of ids and outputs the list of node */
 
-sigma.classes.graph.addMethod("nodeFromID", function(someIds) {
+/*sigma.classes.graph.addMethod("nodeFromID", function(someIds) {
   var k;
   var idSArr = [];
   var idSObj = {};
@@ -80,28 +78,28 @@ sigma.classes.graph.addMethod("nodeFromID", function(someIds) {
     idSArr.push(this.nodesIndex[someIds[k]]); // array
   }
   return idSArr; // returns array
-});
+}); */
 
 sigma.classes.graph.addMethod("activateFinal", function() {
   // nodes
 
   this.nodes().forEach(function(n) {
-    if (selectedO.arr[n.id]) {
+    if (selected.arr[n.id]) {
       n.color = n.originalColor;
     } else {
       n.color = "#eee";
     }
   });
 
-  for (let i = 0; i < selectedO.arr.length; i++) {
-    this.nodesIndex[selectedO.arr[i].id].color = this.nodesIndex[
-      selectedO.arr[i].id
+  for (let i = 0; i < selected.arr.length; i++) {
+    this.nodesIndex[selected.arr[i].id].color = this.nodesIndex[
+      selected.arr[i].id
     ].originalColor;
   }
 
   // Edges
   this.edges().forEach(function(e) {
-    if (selectedO.obj[e.source] && selectedO.obj[e.target]) {
+    if (selected.obj[e.source] && selected.obj[e.target]) {
       e.color = e.originalColor;
     } else {
       e.color = "#eee";
@@ -179,10 +177,10 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     console.log("Changing selection mode");
     if (this.textContent == "Single Node") {
       this.textContent = "Multi Node";
-      selectedO.selectionMulti = true;
+      selected.selectionMulti = true;
     } else {
       this.textContent = "Single Node";
-      selectedO.selectionMulti = false;
+      selected.selectionMulti = false;
     }
   };
 
@@ -190,15 +188,22 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     let nodeId = e.data.node.id; // This is only an integer
 
     // add the selected node to memory
-    selectedO.add(e.data.node);
+    selected.add(e.data.node);
 
     // obj
-    let toKeep = s.graph.neighbors(nodeId);
-    toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
+    if (selected.selectionMulti) {
+      let toKeep = s.graph.neighbors(nodeId);
+      toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
+      selected.reset();
 
+      let x;
+      for (i in toKeep) {
+        selected.add(toKeep[i]);
+      }
+    }
     // Draw the nodes that should stay activated
     s.graph.activateFinal();
-    PlotI(selectedO.arr);
+    PlotI(selected.arr);
     s.refresh();
   });
 
@@ -253,9 +258,9 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   });
 
   document.getElementById("selectionR").onclick = function() {
-    selectedO.reset();
+    selected.reset();
     restartGV();
-    PlotI(selectedO.arr);
+    PlotI(selected.arr);
   };
 
   // -------------------- LAYOUT & plugins -------------------- //
