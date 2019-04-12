@@ -8,7 +8,7 @@ Date.prototype.addDays = function(days) {
 
 // Array / Object holding the values of the selected nodes
 var selected = {
-  selectionMulti: false, // Bool for the selection mode
+  multi: false, // Bool for the selection mode
   obj: {},
   arr: [],
   mode: "Single",
@@ -177,10 +177,10 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     console.log("Changing selection mode");
     if (this.textContent == "Single Node") {
       this.textContent = "Multi Node";
-      selected.selectionMulti = true;
+      selected.multi = true;
     } else {
       this.textContent = "Single Node";
-      selected.selectionMulti = false;
+      selected.multi = false;
     }
   };
 
@@ -191,12 +191,11 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     selected.add(e.data.node);
 
     // obj
-    if (selected.selectionMulti) {
+    if (selected.multi) {
       let toKeep = s.graph.neighbors(nodeId);
       toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
       selected.reset();
 
-      let x;
       for (i in toKeep) {
         selected.add(toKeep[i]);
       }
@@ -332,8 +331,10 @@ function PlotI(nodes) {
       mode: "lines",
       name: n.label,
       x: unpack(gdata, "Date"),
-      y: unpack(gdata, n.id),
-      line: { color: n.color }
+      y: unpack(gdata, n.id)
+      //  line: {
+      //      color: n.color
+      //    }
     };
 
     data.push(trace);
