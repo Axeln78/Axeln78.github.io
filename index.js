@@ -1,4 +1,4 @@
-// import sigma from 'sigma_js/sigma.min.js'
+// System functions and global initialisations
 
 Date.prototype.addDays = function(days) {
   var date = new Date(this.valueOf());
@@ -8,18 +8,37 @@ Date.prototype.addDays = function(days) {
 
 // Array / Object holding the values of the selected nodes
 var selectedO = {
+  selectionMulti: false, // Bool for the selection mode
   obj: {},
   arr: [],
-  addNode: function(id) {
-    doc.alert("aaaaa");
+  mode: "Single",
+  add: function(node) {
+    // Checks if a node is already in the list and removes it or adds it
+    if (this.arr.lastIndexOf(node) != -1) {
+      this.arr.splice(this.arr.lastIndexOf(node), 1);
+      delete this.obj[node.id];
+    } else {
+      this.arr = this.arr.concat(node);
+      this.obj[node.id] = node;
+    }
+  },
+  rm: function(node) {
+    if (this.arr.lastIndexOf(node) != -1) {
+      this.arr.splice(this.arr.lastIndexOf(node), 1);
+      delete this.obj[node.id];
+    } else {
+      console.error("Undefined node");
+    }
+    console.log(rm);
   },
   reset: function() {
     this.obj = {};
     this.arr = [];
+    console.log("Selection reset");
   }
 };
 // TODO: eliminate selected and put selectedO
-selected = [];
+//selected = [];
 
 // Object holding information on the information needed for the time-display
 // linked with the activity
@@ -30,15 +49,6 @@ var plotInfo = {
   selectedStartDate: new Date("2014-09-24"),
   selectedEndDate: new Date("2015-04-30")
 };
-
-// Read the activity data
-var gdata = [];
-
-Plotly.d3.csv("./data/Data_hourly.csv", function(err, rows) {
-  gdata = rows;
-});
-//plot initial empty box
-PlotI([]);
 
 // ---------------- Methods added to Sigma -------------------- //
 
@@ -72,51 +82,31 @@ sigma.classes.graph.addMethod("nodeFromID", function(someIds) {
   return idSArr; // returns array
 });
 
-// Change this function to array based
-sigma.classes.graph.addMethod("activateInd", function(toKeep) {
+sigma.classes.graph.addMethod("activateFinal", function() {
+  // nodes
+
   this.nodes().forEach(function(n) {
-    if (toKeep[n.id]) {
+    if (selectedO.arr[n.id]) {
       n.color = n.originalColor;
     } else {
       n.color = "#eee";
     }
   });
 
+  for (let i = 0; i < selectedO.arr.length; i++) {
+    this.nodesIndex[selectedO.arr[i].id].color = this.nodesIndex[
+      selectedO.arr[i].id
+    ].originalColor;
+  }
+
+  // Edges
   this.edges().forEach(function(e) {
-    if (toKeep[e.source] && toKeep[e.target]) {
+    if (selectedO.obj[e.source] && selectedO.obj[e.target]) {
       e.color = e.originalColor;
     } else {
       e.color = "#eee";
     }
   });
-});
-
-sigma.classes.graph.addMethod("activateArr", function(toKeep) {
-  // tokeep Takes array of nodes
-  /*this.nodes().forEach(function(n) {
-    n.color = "#eee";
-  }); */
-
-  for (let i = 0; i < toKeep.length; i++) {
-    this.nodesIndex[toKeep[i].id].color = this.nodesIndex[
-      toKeep[i].id
-    ].originalColor;
-  }
-
-  // // TODO: turn this into an array liking FUNCTION
-  for (let i = 0; i < toKeep.length; i++) {
-    this.nodesIndex[toKeep[i].id].color = this.nodesIndex[
-      toKeep[i].id
-    ].originalColor;
-  }
-
-  /*this.edges().forEach(function(e) {
-    if (toKeep[e.source] && toKeep[e.target]) {
-      e.color = e.originalColor;
-    } else {
-      e.color = "#eee";
-    }
-  });*/
 });
 
 // Configuration of sigma
@@ -145,7 +135,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   var filter = new sigma.plugins.filter(s);
   var maxDegree = 0;
 
-  // read nodes
+  // Set the maximum node degree
   s.graph.nodes().forEach(function(n) {
     maxDegree = Math.max(maxDegree, s.graph.degree(n.id));
   });
@@ -185,25 +175,30 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     // console.log(output);
   };
 
+  document.getElementById("selectMode").onclick = function() {
+    console.log("Changing selection mode");
+    if (this.textContent == "Single Node") {
+      this.textContent = "Multi Node";
+      selectedO.selectionMulti = true;
+    } else {
+      this.textContent = "Single Node";
+      selectedO.selectionMulti = false;
+    }
+  };
+
   s.bind("clickNode", function(e) {
     let nodeId = e.data.node.id; // This is only an integer
 
-    // if the node is not selected it will add it otherwise remove it from
-    // the array
-    if (selected.lastIndexOf(nodeId) != -1) {
-      selected.splice(selected.lastIndexOf(nodeId), 1);
-    } else selected.push(nodeId);
+    // add the selected node to memory
+    selectedO.add(e.data.node);
 
-    nlistArr = s.graph.nodeFromID(selected);
-
+    // obj
     let toKeep = s.graph.neighbors(nodeId);
     toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
 
     // Draw the nodes that should stay activated
-    // TURN INTO 1 func!
-    s.graph.activateInd(toKeep);
-    s.graph.activateArr(nlistArr);
-    PlotI(nlistArr);
+    s.graph.activateFinal();
+    PlotI(selectedO.arr);
     s.refresh();
   });
 
@@ -258,11 +253,9 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   });
 
   document.getElementById("selectionR").onclick = function() {
-    // selected.reset();
-    selected = [];
-    nlist = s.graph.nodeFromID(selected);
+    selectedO.reset();
     restartGV();
-    PlotI(nlist);
+    PlotI(selectedO.arr);
   };
 
   // -------------------- LAYOUT & plugins -------------------- //
@@ -310,9 +303,14 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
 
 plot = document.getElementById("Plot");
 
-// TODO: Read the data only one and store interval
+// Read the activity data
+var gdata = [];
 
-//function Readdata() {
+Plotly.d3.csv("./data/Data_hourly.csv", function(err, rows) {
+  gdata = rows;
+});
+//plot initial empty box
+PlotI([]);
 
 function unpack(rows, key) {
   return rows.map(function(row) {
@@ -350,7 +348,6 @@ function PlotI(nodes) {
   };
 
   Plotly.newPlot(plot, data, layout);
-
   // When the user zooms on the plot, he modifies the selected time range,
   // this information is then sored in the global plotInfo variable
   plot.on("plotly_relayout", function(eventdata) {
