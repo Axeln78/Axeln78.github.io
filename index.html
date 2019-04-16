@@ -100,7 +100,6 @@
         <button id="selectionR" type="button">Reset selection</button>
         <button id="export" type="export">Export</button>
         <button id="noverlap" type="button">Noverlap</button>
-        <!-- <button id="selectMode" type="button">Single Node</button> -->
         <input
           id="Checkbox"
           type="checkbox"
@@ -108,16 +107,6 @@
           value="Null"
         />
         Group node selection<br />
-
-        Lower threshold:
-        <input type="number" id="lower-threshold" name="lthresh" value="0" />
-        higher threshold:
-        <input
-          type="number"
-          id="higher-threshold"
-          name="htresh"
-          value="1000"
-        /><br />
 
         <div>
           <input
@@ -147,6 +136,21 @@
           value="0"
         />
         <label for="date">TimeLine</label>
+        <div id="DateIndicator"></div>
+      </div>
+      <br />
+    </div>
+    <div class="container">
+      <div class="row">
+        Lower threshold:
+        <input type="number" id="lower-threshold" name="lthresh" value="0" />
+        higher threshold:
+        <input
+          type="number"
+          id="higher-threshold"
+          name="htresh"
+          value="100000"
+        /><br />
       </div>
     </div>
 

@@ -177,17 +177,20 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   function filterActivity() {
     timestamp = document.getElementById("range").value;
     lt = document.getElementById("lower-threshold").value;
+    ht = document.getElementById("higher-threshold").value;
     filter
       .undo("activity")
       .nodesBy(function(n) {
-        return gdata[plotInfo.rangeStartI + parseInt(timestamp)][n.id] >= lt; // this is s.graph
+        let val = parseInt(gdata[plotInfo.rangeStartI + parseInt(timestamp)][n.id]);
+        return val >= lt && val <= ht; // this is s.graph
       }, "activity")
       .apply();
   }
 
   document.getElementById("range").oninput = function() {
     filterActivity();
-    console.log(this.label);
+    document.getElementById("DateIndicator").innerHTML =
+      "selected Time: " + time[plotInfo.rangeStartI + parseInt(this.value)];
   };
 
   document.getElementById("lower-threshold").oninput = function() {
@@ -204,8 +207,6 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     });
     // console.log(output);
   };
-
-  //document.getElementById("selectMode").onclick = function() {};
 
   document.getElementById("Checkbox").onchange = function() {
     console.log(this);
@@ -304,7 +305,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   var noverlapListener = s.configNoverlap({
     nodeMargin: 0.1,
     scaleNodes: 1.05,
-    gridSize: 75,
+    gridSize: 75, //75
     easing: "quadraticInOut", // animation transition function
     speed: 4, // 2 def
     duration: 400 // animation duration.
@@ -394,9 +395,6 @@ function PlotI(nodes) {
   Plotly.newPlot(plot, data, layout);
   // When the user zooms on the plot, he modifies the selected time range,
   // this information is then sored in the global plotInfo
-
-  // Need to make a function that takes in two time values and shaves off the minutes and the hours in order to be able to find the index with LastIndexOf()
-  // Then gdata[dateIndex][nodeIndex] = Value at time date(dateIndex)
 
   plot.on("plotly_relayout", function(eventdata) {
     // Changes the global parameters for the
