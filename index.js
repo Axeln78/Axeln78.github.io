@@ -1,5 +1,6 @@
 // System functions and global initialisations
 
+// EXPORTABLE MODULE
 //var nearest = require("nearest-date");
 // Changes made to https://www.npmjs.com/package/nearest-date
 function nearest(dates, target) {
@@ -102,7 +103,7 @@ sigma.classes.graph.addMethod("neighbors", function(nodeId) {
   return idSArr; // returns array
 }); */
 
-sigma.classes.graph.addMethod("activateFinal", function() {
+sigma.classes.graph.addMethod("activate", function() {
   // nodes
 
   this.nodes().forEach(function(n) {
@@ -173,16 +174,25 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   // ---------------- ELEMENT linked functions -------------------- //
   // Needs to go and get the data information of the activity in order to compare it here. Otherwise the interaction is good
 
-  /*document.getElementById("range").oninput = function() {
-    let timestamp = this.value;
-    lt = document.getElementById("lower-threshold").textContent;
+  function filterActivity() {
+    timestamp = document.getElementById("range").value;
+    lt = document.getElementById("lower-threshold").value;
     filter
       .undo("activity")
       .nodesBy(function(n) {
-        return this.degree(n.id) > size;    // this is s.graph
+        return gdata[plotInfo.rangeStartI + parseInt(timestamp)][n.id] >= lt; // this is s.graph
       }, "activity")
       .apply();
-  };*/
+  }
+
+  document.getElementById("range").oninput = function() {
+    filterActivity();
+    console.log(this.label);
+  };
+
+  document.getElementById("lower-threshold").oninput = function() {
+    filterActivity();
+  };
 
   // Export FUNCTION
   document.getElementById("export").onclick = function() {
@@ -223,7 +233,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
       }
     }
     // Draw the nodes that should stay activated
-    s.graph.activateFinal();
+    s.graph.activate();
     PlotI(selected.arr);
     s.refresh();
   });
@@ -389,8 +399,13 @@ function PlotI(nodes) {
   plot.on("plotly_relayout", function(eventdata) {
     // Changes the global parameters for the
     plotInfo.rangeStart = new Date(eventdata["xaxis.range[0]"]);
-    plotInfo.rangeStartI = nearest(time, plotInfo.rangeStart);
+    plotInfo.rangeStartI = nearest(time, plotInfo.rangeStart); // THIS COULD BE SIMPLIFIED
     plotInfo.rangeEnd = new Date(eventdata["xaxis.range[1]"]);
     plotInfo.rangeEndI = nearest(time, plotInfo.rangeEnd);
+
+    // Change the range of the slider
+    document.getElementById("range").max =
+      plotInfo.rangeEndI - plotInfo.rangeStartI;
+    console.log(document.getElementById("range").max);
   });
 }
