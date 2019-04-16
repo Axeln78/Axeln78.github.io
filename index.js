@@ -1,5 +1,25 @@
 // System functions and global initialisations
 
+//var nearest = require("nearest-date");
+// Changes made to https://www.npmjs.com/package/nearest-date
+function nearest(dates, target) {
+  if (!target) target = Date.now();
+  else if (target instanceof Date) target = target.getTime();
+
+  var nearest = Infinity;
+  var winner = -1;
+
+  dates.forEach(function(date, index) {
+    date = new Date(date).getTime();
+    var distance = Math.abs(date - target);
+    if (distance < nearest) {
+      nearest = distance;
+      winner = index;
+    }
+  });
+  return winner;
+}
+
 Date.prototype.addDays = function(days) {
   var date = new Date(this.valueOf());
   date.setDate(date.getDate() + days);
@@ -40,12 +60,14 @@ var selected = {
 
 // Object holding information on the information needed for the time-display
 // linked with the activity
-
+// TODO: This need to be changed at some point
 var plotInfo = {
   startDate: new Date("2014-09-24"),
   endDate: new Date("2015-04-30"),
-  selectedStartDate: new Date("2014-09-24"),
-  selectedEndDate: new Date("2015-04-30")
+  rangeStart: new Date("2014-09-24"),
+  rangeStartI: 0,
+  rangeEnd: new Date("2015-04-30"),
+  rangeEndI: 5278
 };
 
 // ---------------- Methods added to Sigma -------------------- //
@@ -309,12 +331,7 @@ plot = document.getElementById("Plot");
 
 // Read the activity data
 var gdata = [];
-
-Plotly.d3.csv("./data/Data_hourly.csv", function(err, rows) {
-  gdata = rows;
-});
-//plot initial empty box
-PlotI([]);
+var time = [];
 
 function unpack(rows, key) {
   return rows.map(function(row) {
@@ -322,6 +339,15 @@ function unpack(rows, key) {
   });
 }
 
+Plotly.d3.csv("./data/Data_hourly.csv", function(err, rows) {
+  gdata = rows;
+  time = unpack(gdata, "Date");
+  (plotInfo.startDate = new Date(time[0])),
+    (plotInfo.endDate = new Date(time[time.length - 1]));
+});
+
+//plot initial empty box
+PlotI([]);
 function PlotI(nodes) {
   plot = document.getElementById("Plot");
   var data = [];
@@ -330,7 +356,7 @@ function PlotI(nodes) {
       type: "scatter",
       mode: "lines",
       name: n.label,
-      x: unpack(gdata, "Date"),
+      x: time,
       y: unpack(gdata, n.id)
       //  line: {
       //      color: n.color
@@ -355,10 +381,16 @@ function PlotI(nodes) {
 
   Plotly.newPlot(plot, data, layout);
   // When the user zooms on the plot, he modifies the selected time range,
-  // this information is then sored in the global plotInfo variable
+  // this information is then sored in the global plotInfo
+
+  // Need to make a function that takes in two time values and shaves off the minutes and the hours in order to be able to find the index with LastIndexOf()
+  // Then gdata[dateIndex][nodeIndex] = Value at time date(dateIndex)
+
   plot.on("plotly_relayout", function(eventdata) {
-    plotInfo.selectedStartDate = eventdata["xaxis.range[0]"];
-    console.log(plotInfo.selectedStartDate);
-    plotInfo.selectedEndDate = eventdata["xaxis.range[1]"];
+    // Changes the global parameters for the
+    plotInfo.rangeStart = new Date(eventdata["xaxis.range[0]"]);
+    plotInfo.rangeStartI = nearest(time, plotInfo.rangeStart);
+    plotInfo.rangeEnd = new Date(eventdata["xaxis.range[1]"]);
+    plotInfo.rangeEndI = nearest(time, plotInfo.rangeEnd);
   });
 }
