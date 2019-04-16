@@ -205,13 +205,15 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     // console.log(output);
   };
 
-  document.getElementById("selectMode").onclick = function() {
+  //document.getElementById("selectMode").onclick = function() {};
+
+  document.getElementById("Checkbox").onchange = function() {
+    console.log(this);
+
     console.log("Changing selection mode");
-    if (this.textContent == "Single Node") {
-      this.textContent = "Multi Node";
+    if (this.checked) {
       selected.multi = true;
     } else {
-      this.textContent = "Single Node";
       selected.multi = false;
     }
   };
