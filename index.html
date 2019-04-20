@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="css/style1.css" />
 
     <!-- Basic Page Needs
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <meta charset="utf-8" />
     <title>Graph Visualization of Wikipedia</title>
     <meta name="description" content="Graph Visualization of Wikipedia" />
@@ -12,11 +12,11 @@
     <meta name="title" content="Graph Visualization" />
 
     <!-- Mobile Specific Metas
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- FONT
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <link
       href="//fonts.googleapis.com/css?family=Raleway:400,300,600"
       rel="stylesheet"
@@ -28,16 +28,16 @@
       type="text/css"
     />
     <!-- CSS
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <link rel="stylesheet" href="css/normalize.css" />
     <link rel="stylesheet" href="css/skeleton.css" />
 
     <!-- Favicon
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <link rel="icon" type="image/png" href="images/favicon.png" />
 
     <!-- Sigma
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script src="./lib/sigma_js/sigma.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.layout.forceAtlas2.min.js"></script>
@@ -47,59 +47,17 @@
     <script src="./lib/sigma_js/plugins/sigma.exporters.svg.min.js"></script>
 
     <!-- Plotly
-    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script src="./lib/plotly-latest.min.js"></script>
   </head>
 
-  <!-- Primary Page Layout
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <div class="container">
-    <section class="header">
-      <div class="two-thirds column" style="margin-top: 10%">
-        <h1>Graph Visualization of Wikipedia</h1>
-      </div>
-    </section>
-  </div>
-
-  <div class="container">
-    <div class="row">
-      <div class="one-half column">
-        <p>
-          This website is to experiment and display graphs as a part of the
-          development of the project of visualization of a sub-set of Wikipedia
-          pages. This project is linked to a university project at EPFL
-        </p>
-      </div>
-    </div>
-  </div>
-
   <body>
-    <div class="container">
-      <div class="row">
-        <div class="one-half column"><h3>The dataset</h3></div>
-
-        <div class="one-half column">
-          <p>
-            Each node represents a Wikipedia page, each link or edge represents
-            the hyperlinks to which one can be directed to from another page.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="container" id="Sigma" style="margin-bottom: Z%">
-      <div class="row">
-        <div class="one-half column">
-          <p>A JS library for displaying graphs in WebGL</p>
-        </div>
-        <div class="one-half column"><h3>Sigma JS</h3></div>
-      </div>
-
+    <div id="sigma-container"></div>
+    <div id="commands-container">
       <div class="row" id="Render">
+        <h4>Commands</h4>
         <button id="layout" type="button">Layout</button>
-        <button id="selectionR" type="button">Reset selection</button>
-        <button id="export" type="export">Export</button>
-        <button id="noverlap" type="button">Noverlap</button>
+        <button id="noverlap" type="button">Noverlap</button><br />
         <input
           id="Checkbox"
           type="checkbox"
@@ -109,6 +67,8 @@
         Group node selection<br />
 
         <div>
+          <button id="selectionR" type="button">Reset selection</button>
+
           <input
             type="range"
             id="rangeDegree"
@@ -122,8 +82,6 @@
           Min edge size:
           <input type="number" id="edge-threshold" name="ethresh" value="0" />
         </div>
-
-        <div class="box" id="sigma-container2"></div>
       </div>
 
       <div>
@@ -138,9 +96,6 @@
         <label for="date">TimeLine</label>
         <div id="DateIndicator"></div>
       </div>
-      <br />
-    </div>
-    <div class="container">
       <div class="row">
         Lower threshold:
         <input type="number" id="lower-threshold" name="lthresh" value="0" />
@@ -151,46 +106,20 @@
           name="htresh"
           value="100000"
         /><br />
+        <button id="export" type="export">Export</button>
       </div>
     </div>
 
     <!-- Plot -->
-    <div class="container">
+    <div id="plot-container">
       <div class="row">
         <div class="box" id="Plot"></div>
-      </div>
-    </div>
-
-    <!-- Link to dev -->
-    <!--  <div class="container" id="testEnv" style="margin-top: 2%">
-      <div class="row">
-        <h6>
-          Access to the test environment where new renders are made. Enter at
-          your own risk!
-        </h6>
-        <a class="button" href="index2.html">Test Environment</a>
-      </div>
-    </div> -->
-
-    <!-- Link to resources -->
-    <div class="container">
-      <div class="row">
-        <div class="one-half column" style="margin-top: 2%">
-          <h5>Exernal resources and links:</h5>
-          <p>
-            For the Structure of the website, there is a simply built boiler
-            plate in CSS called "Skeleton".
-            <a href="http://www.getskeleton.com">
-              Skeleton documentation
-            </a>
-          </p>
-        </div>
       </div>
     </div>
 
     <script type="text/javascript" src="index.js"></script>
 
     <!-- End Document
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
   </body>
 </html>

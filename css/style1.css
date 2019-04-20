@@ -3,11 +3,11 @@ body {
 }
 
 #sigma-container {
-  max-width: 420px;
-  height: 262px;
-  margin: auto;
-  border-style: solid;
-  border-width: 1px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
 }
 #sigma-container2 {
   max-width: 100%;
@@ -15,6 +15,35 @@ body {
   margin: auto;
   border-style: solid;
   border-width: 1px;
+}
+
+#commands-container {
+  top: 10px;
+  /*bottom: 10px;*/
+  right: 10px;
+  position: absolute;
+  width: 230px;
+  background-color: rgb(249, 247, 237);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+#commands-container > div {
+  margin: 10px;
+  overflow-x: auto;
+}
+
+#plot-container {
+  bottom: 5px;
+  /*bottom: 10px;*/
+  left: 5px;
+  position: absolute;
+  height: 250px;
+  /*height: 300px;*/
+  background-color: rgb(249, 247, 237);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+#plot-container > div {
+  margin: 10px;
+  overflow-x: auto;
 }
 
 #range {

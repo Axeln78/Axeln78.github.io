@@ -21,6 +21,7 @@ function nearest(dates, target) {
   return winner;
 }
 
+// Date add addDays proto TBR?
 Date.prototype.addDays = function(days) {
   var date = new Date(this.valueOf());
   date.setDate(date.getDate() + days);
@@ -50,7 +51,7 @@ var selected = {
     } else {
       console.error("Undefined node");
     }
-    console.log(rm);
+    console.log("rm");
   },
   reset: function() {
     this.obj = {};
@@ -135,7 +136,7 @@ sigma.classes.graph.addMethod("activate", function() {
 sigmaConfig = {
   renderer: {
     type: "WebGL",
-    container: "sigma-container2"
+    container: "sigma-container"
   },
   settings: {
     //drawEdges: false,
@@ -174,18 +175,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   // ---------------- ELEMENT linked functions -------------------- //
   // Needs to go and get the data information of the activity in order to compare it here. Otherwise the interaction is good
 
-  function filterActivity() {
-    timestamp = document.getElementById("range").value;
-    lt = document.getElementById("lower-threshold").value;
-    ht = document.getElementById("higher-threshold").value;
-    filter
-      .undo("activity")
-      .nodesBy(function(n) {
-        let val = parseInt(gdata[plotInfo.rangeStartI + parseInt(timestamp)][n.id]);
-        return val >= lt && val <= ht; // this is s.graph
-      }, "activity")
-      .apply();
-  }
+  // Activity filtering :
 
   document.getElementById("range").oninput = function() {
     filterActivity();
@@ -194,6 +184,10 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   };
 
   document.getElementById("lower-threshold").oninput = function() {
+    filterActivity();
+  };
+
+  document.getElementById("higher-threshold").oninput = function() {
     filterActivity();
   };
 
@@ -209,8 +203,6 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   };
 
   document.getElementById("Checkbox").onchange = function() {
-    console.log(this);
-
     console.log("Changing selection mode");
     if (this.checked) {
       selected.multi = true;
@@ -246,6 +238,21 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   // TODO: Filter the viewed nodes
 
   // '(1)'  - - need to remove the label by hand here
+
+  function filterActivity() {
+    timestamp = document.getElementById("range").value;
+    lt = document.getElementById("lower-threshold").value;
+    ht = document.getElementById("higher-threshold").value;
+    filter
+      .undo("activity")
+      .nodesBy(function(n) {
+        let val = parseInt(
+          gdata[plotInfo.rangeStartI + parseInt(timestamp)][n.id]
+        );
+        return val >= lt && val <= ht;
+      }, "activity")
+      .apply();
+  }
 
   function filterEdges(length) {
     filter
@@ -380,7 +387,16 @@ function PlotI(nodes) {
   });
 
   var layout = {
-    title: "Custom Range",
+    autosize: false,
+    //width: 500,
+    margin: {
+      l: 5,
+      r: 5,
+      b: 5,
+      t: 5,
+      pad: 4
+    },
+    height: 250,
     xaxis: {
       range: [plotInfo.startDate, plotInfo.endDate],
       type: "date"
