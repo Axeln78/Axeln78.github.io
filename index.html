@@ -54,66 +54,96 @@
   <body>
     <div id="sigma-container"></div>
     <div id="commands-container">
-      <div class="row" id="Render">
-        <h4>Commands</h4>
-        <button id="layout" type="button">Layout</button>
-        <button id="noverlap" type="button">Noverlap</button><br />
-        <input
-          id="Checkbox"
-          type="checkbox"
-          name="Neighbour node selection"
-          value="Null"
-        />
-        Group node selection<br />
-
-        <div>
-          <button id="selectionR" type="button">Reset selection</button>
-
-          <input
-            type="range"
-            id="rangeDegree"
-            name="degree"
-            min="0"
-            max="35"
-            value="0"
-          />
-          Max degree <span id="max-degree-value">0</span> selected min degree
-          <span id="min-degree-value">0</span><br />
-          Min edge size:
-          <input type="number" id="edge-threshold" name="ethresh" value="0" />
-        </div>
-      </div>
-
-      <div>
-        <input
-          type="range"
-          id="range"
-          name="date"
-          min="0"
-          max="100"
-          value="0"
-        />
-        <label for="date">TimeLine</label>
-        <div id="DateIndicator"></div>
-      </div>
       <div class="row">
-        Lower threshold:
-        <input type="number" id="lower-threshold" name="lthresh" value="0" />
-        higher threshold:
-        <input
-          type="number"
-          id="higher-threshold"
-          name="htresh"
-          value="100000"
-        /><br />
-        <button id="export" type="export">Export</button>
+        <h4>Command pannel</h4>
+        <button class="collapsible">Layout</button>
+        <div class="content">
+          <div class="row">
+            <div class="row" id="Render">
+              <button id="layout" type="button">Force Atlas 2</button>
+              <button id="noverlap" type="button">Noverlap</button><br />
+              <input
+                id="Checkbox"
+                type="checkbox"
+                name="Neighbour node selection"
+                value="Null"
+              />
+              Group node selection<br />
+
+              <div>
+                <button id="selectionR" type="button">Reset selection</button>
+
+                <input
+                  type="range"
+                  id="rangeDegree"
+                  name="degree"
+                  min="0"
+                  max="35"
+                  value="0"
+                />
+                Max degree <span id="max-degree-value">0</span> selected min
+                degree <span id="min-degree-value">0</span><br />
+                Min edge size:
+                <input
+                  type="number"
+                  id="edge-threshold"
+                  name="ethresh"
+                  value="0"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="collapsible">Timeline filter</button>
+        <div class="content">
+          <div class="row">
+            <div>
+              <input
+                type="range"
+                id="range"
+                name="date"
+                min="0"
+                max="100"
+                value="0"
+              />
+              <label for="date">TimeLine</label>
+              <div id="DateIndicator"></div>
+            </div>
+            <div class="row">
+              Lower threshold:
+              <input
+                type="number"
+                id="lower-threshold"
+                name="lthresh"
+                value="0"
+              />
+              higher threshold:
+              <input
+                type="number"
+                id="higher-threshold"
+                name="htresh"
+                value="100000"
+              /><br />
+            </div>
+          </div>
+        </div>
+        <button class="collapsible">Export</button>
+        <div class="content">
+          <div class="row">
+            <button id="export" type="export">SVG</button>
+            <button id="export2" type="export2">GEXF</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Plot -->
     <div id="plot-container">
-      <div class="row">
-        <div class="box" id="Plot"></div>
+      <button class="collapsible">Plot</button>
+      <div class="content">
+        <div class="row">
+          <div class="box" id="Plot"></div>
+        </div>
       </div>
     </div>
 
