@@ -25,10 +25,11 @@ body {
   width: 230px;
   background-color: rgb(249, 247, 237);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  overflow: scroll;
 }
 #commands-container > div {
   margin: 10px;
-  overflow-x: auto;
+  overflow: scroll;
 }
 
 #plot-container {
@@ -86,5 +87,5 @@ body {
 .content {
   /*padding: 0 18px;*/
   display: none;
-  overflow: hidden;
+  overflow: scroll;
 }

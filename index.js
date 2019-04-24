@@ -33,7 +33,8 @@ var selected = {
   multi: false, // Bool for the selection mode
   obj: {},
   arr: [],
-  mode: "Single",
+  //mode: "Single",
+  disp: false,
   add: function(node) {
     // Checks if a node is already in the list and removes it or adds it
     if (this.arr.lastIndexOf(node) != -1) {
@@ -177,6 +178,8 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
 
   // Activity filtering :
 
+  //init time range filter
+  document.getElementById("range").max = plotInfo.rangeEndI - 1;
   document.getElementById("range").oninput = function() {
     filterActivity();
     document.getElementById("DateIndicator").innerHTML =
@@ -228,9 +231,14 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
       }
     }
     // Draw the nodes that should stay activated
+    // TODO: pop the plot open
     s.graph.activate();
     PlotI(selected.arr);
     s.refresh();
+
+    // pop up the plot when clicking on a node
+    plot = document.getElementById("plot-container");
+    plot.children[1].style.display = "block"; // fuggly magic number here
   });
 
   // -------------------- FILTER -------------------- //
@@ -295,7 +303,15 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   }
 
   s.bind("clickStage", function(e) {
-    restartGV();
+    // POTOOOOOOOOOO
+    if (selected.disp == false) {
+      s.graph.activate();
+      s.refresh();
+      selected.disp = true;
+    } else {
+      restartGV();
+      selected.disp = false;
+    }
   });
 
   document.getElementById("selectionR").onclick = function() {
@@ -333,7 +349,8 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     } else {
       s.stopForceAtlas2();
       this.textContent = "Start";
-      s.startNoverlap();
+      // Possible automatic no-overlap here
+      //s.startNoverlap();
     }
     force = !force;
   };
@@ -390,11 +407,11 @@ function PlotI(nodes) {
     autosize: false,
     //width: 500,
     margin: {
-      l: 5,
-      r: 5,
-      b: 5,
-      t: 5,
-      pad: 4
+      l: 50,
+      r: 50,
+      b: 50,
+      t: 50,
+      pad: 0
     },
     height: 250,
     xaxis: {
@@ -426,6 +443,14 @@ function PlotI(nodes) {
   });
 }
 
+function toggleMenu(content) {
+  if (content.style.display === "block") {
+    content.style.display = "none";
+  } else {
+    content.style.display = "block";
+  }
+}
+
 var coll = document.getElementsByClassName("collapsible");
 var i;
 
@@ -433,10 +458,33 @@ for (i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function() {
     this.classList.toggle("active");
     var content = this.nextElementSibling;
-    if (content.style.display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
+    toggleMenu(content);
   });
 }
+
+//------ SPINNER.JS TEST ----
+//import Spinner from "./lib/spin.js";
+/*
+var opts = {
+  lines: 13, // The number of lines to draw
+  length: 38, // The length of each line
+  width: 17, // The line thickness
+  radius: 45, // The radius of the inner circle
+  scale: 1, // Scales overall size of the spinner
+  corners: 1, // Corner roundness (0..1)
+  color: "#ffffff", // CSS color or array of colors
+  fadeColor: "transparent", // CSS color or array of colors
+  speed: 1, // Rounds per second
+  rotate: 0, // The rotation offset
+  animation: "spinner-line-fade-quick", // The CSS animation name for the lines
+  direction: 1, // 1: clockwise, -1: counterclockwise
+  zIndex: 2e9, // The z-index (defaults to 2000000000)
+  className: "spinner", // The CSS class to assign to the spinner
+  top: "50%", // Top position relative to parent
+  left: "50%", // Left position relative to parent
+  shadow: "0 0 1px transparent", // Box-shadow for the lines
+  position: "absolute" // Element positioning
+};
+
+var target = document.getElementById("sigma-container");
+var spinner = new Spinner(opts).spin(target);*/
