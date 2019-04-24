@@ -194,6 +194,12 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     filterActivity();
   };
 
+  document.getElementById("ResetTimeRange").onclick = function() {
+    document.getElementById("lower-threshold").value = 0;
+    document.getElementById("higher-threshold").value = 100000;
+    filterActivity();
+  };
+
   // Export FUNCTION
   document.getElementById("export").onclick = function() {
     console.log("exporting...");
@@ -439,16 +445,9 @@ function PlotI(nodes) {
     // Change the range of the slider
     document.getElementById("range").max =
       plotInfo.rangeEndI - plotInfo.rangeStartI;
-    console.log(document.getElementById("range").max);
+    // DEBUG
+    //console.log(document.getElementById("range").max);
   });
-}
-
-function toggleMenu(content) {
-  if (content.style.display === "block") {
-    content.style.display = "none";
-  } else {
-    content.style.display = "block";
-  }
 }
 
 var coll = document.getElementsByClassName("collapsible");
@@ -458,7 +457,11 @@ for (i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function() {
     this.classList.toggle("active");
     var content = this.nextElementSibling;
-    toggleMenu(content);
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
   });
 }
 
