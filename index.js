@@ -201,8 +201,8 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   };
 
   // Export FUNCTION
-  document.getElementById("export").onclick = function() {
-    console.log("exporting...");
+  document.getElementById("exportSVG").onclick = function() {
+    console.log("exporting to SVG...");
     var output = s.toSVG({
       download: true,
       filename: "mygraph.svg",
@@ -210,7 +210,18 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     });
     // console.log(output);
   };
-
+  document.getElementById("exportGEXF").onclick = function() {
+    console.log("exporting to GEXF...");
+    s.toGEXF({
+      download: true,
+      filename: "myGraph.gexf",
+      nodeAttributes: null, // "data",
+      edgeAttributes: null, // "data.properties",
+      renderer: s.renderers[0],
+      creator: "Wikimedia - Axel",
+      description: "Generated graph from the Wikipedia dataset"
+    });
+  };
   document.getElementById("Checkbox").onchange = function() {
     console.log("Changing selection mode");
     if (this.checked) {
