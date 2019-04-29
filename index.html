@@ -98,40 +98,6 @@
             </div>
           </div>
         </div>
-        <button class="collapsible">Timeline filter</button>
-        <div class="content">
-          <div class="row">
-            <div>
-              <input
-                type="range"
-                id="range"
-                name="date"
-                min="0"
-                max="100"
-                value="0"
-              />
-              <label for="date">TimeLine</label>
-              <div id="DateIndicator"></div>
-            </div>
-            <div class="row">
-              Lower threshold:
-              <input
-                type="number"
-                id="lower-threshold"
-                name="lthresh"
-                value="0"
-              />
-              higher threshold:
-              <input
-                type="number"
-                id="higher-threshold"
-                name="htresh"
-                value="100000"
-              /><br />
-              <button type="button" id="ResetTimeRange">Reset</button>
-            </div>
-          </div>
-        </div>
         <button class="collapsible">Export</button>
         <div class="content">
           <div class="row">
@@ -147,9 +113,46 @@
       <button class="collapsible">Plot</button>
       <div class="content">
         <div class="row">
-          <div class="box" id="Plot"></div>
+          <div class="row" id="Plot"></div>
         </div>
       </div>
+      <button class="collapsible">Timeline filter</button>
+      <div class="content">
+        <div class="row">
+          <div>
+            <input
+              type="range"
+              id="range"
+              name="date"
+              min="0"
+              max="100"
+              value="0"
+            />
+            <label for="date">TimeLine</label>
+            <div id="DateIndicator"></div>
+          </div>
+          <div class="row">
+            <p>
+              Lower threshold:
+              <input
+                type="number"
+                id="lower-threshold"
+                name="lthresh"
+                value="0"
+              />
+              higher threshold:
+              <input
+                type="number"
+                id="higher-threshold"
+                name="htresh"
+                value="100000"
+              /><br />
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" id="ResetTimeRange">Reset</button>
     </div>
 
     <script type="module" src="lib/spin.js"></script>

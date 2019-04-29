@@ -22,11 +22,11 @@ function nearest(dates, target) {
 }
 
 // Date add addDays proto TBR?
-Date.prototype.addDays = function(days) {
+/*Date.prototype.addDays = function(days) {
   var date = new Date(this.valueOf());
   date.setDate(date.getDate() + days);
   return date;
-};
+};*/
 
 // Array / Object holding the values of the selected nodes
 var selected = {
@@ -67,10 +67,10 @@ var selected = {
 var plotInfo = {
   startDate: new Date("2014-09-24"),
   endDate: new Date("2015-04-30"),
-  rangeStart: new Date("2014-09-24"),
   rangeStartI: 0,
-  rangeEnd: new Date("2015-04-30"),
-  rangeEndI: 5278
+  rangeEndI: 5278,
+  maxDisp: 10000,
+  selectedTimeI: this.rangeStartI
 };
 
 // ---------------- Methods added to Sigma -------------------- //
@@ -90,20 +90,6 @@ sigma.classes.graph.addMethod("neighbors", function(nodeId) {
 
   return neighbors;
 });
-
-/*  a function that takes as input a list of ids and outputs the list of node */
-
-/*sigma.classes.graph.addMethod("nodeFromID", function(someIds) {
-  var k;
-  var idSArr = [];
-  var idSObj = {};
-
-  for (k in someIds) {
-    //idSObj[someIds[k]] = this.nodesIndex[someIds[k]]; //object
-    idSArr.push(this.nodesIndex[someIds[k]]); // array
-  }
-  return idSArr; // returns array
-}); */
 
 sigma.classes.graph.addMethod("activate", function() {
   // nodes
@@ -182,8 +168,12 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   document.getElementById("range").max = plotInfo.rangeEndI - 1;
   document.getElementById("range").oninput = function() {
     filterActivity();
+    plotInfo.selectedTimeI = plotInfo.rangeStartI + parseInt(this.value);
+
     document.getElementById("DateIndicator").innerHTML =
-      "selected Time: " + time[plotInfo.rangeStartI + parseInt(this.value)];
+      "selected Time: " + time[plotInfo.selectedTimeI];
+    // Update a second trace of the plot where the bar is stored to move it at y = "selected time"
+    PlotI(selected.arr);
   };
 
   document.getElementById("lower-threshold").oninput = function() {
@@ -200,7 +190,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     filterActivity();
   };
 
-  // Export FUNCTION
+  // Export FUNCTIONS
   document.getElementById("exportSVG").onclick = function() {
     console.log("exporting to SVG...");
     var output = s.toSVG({
@@ -218,7 +208,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
       nodeAttributes: null, // "data",
       edgeAttributes: null, // "data.properties",
       renderer: s.renderers[0],
-      creator: "Wikimedia - Axel",
+      creator: "Wikimedia",
       description: "Generated graph from the Wikipedia dataset"
     });
   };
@@ -421,7 +411,7 @@ function PlotI(nodes) {
   });
 
   var layout = {
-    autosize: false,
+    autosize: true,
     //width: 500,
     margin: {
       l: 50,
@@ -430,16 +420,42 @@ function PlotI(nodes) {
       t: 50,
       pad: 0
     },
-    height: 250,
+    //height: 200,
+    // HERE MAKE AN IF FOR STARTDATE AND endDate
     xaxis: {
-      range: [plotInfo.startDate, plotInfo.endDate],
-      type: "date"
+      range: [time[plotInfo.rangeStartI], time[plotInfo.rangeEndI]],
+      type: "date" //,
+      //rangeslider: { range: [plotInfo.startDate, plotInfo.endDate] },
+      //type: "date"
     },
     yaxis: {
       autorange: true,
-      range: [87, 138],
+      //range: [87, 138],
       type: "linear"
-    }
+    },
+
+    shapes: [
+      // 1st highlight during Feb 4 - Feb 6
+      {
+        type: "rect",
+        // x-reference is assigned to the x-values
+        xref: "x",
+        // y-reference is assigned to the plot paper [0,1]
+        yref: "paper",
+        x0: time[plotInfo.selectedTimeI],
+        y0: 0,
+        x1: time[plotInfo.selectedTimeI + 1],
+        y1: 1,
+        fillcolor: "#F9812A",
+        opacity: 0.8,
+        line: {
+          width: 0
+        }
+      }
+    ]
+    // Here could be some indicative values for abs height and width
+    //height: 500,
+    //width: 500
   };
 
   Plotly.newPlot(plot, data, layout);
@@ -448,19 +464,38 @@ function PlotI(nodes) {
 
   plot.on("plotly_relayout", function(eventdata) {
     // Changes the global parameters for the
-    plotInfo.rangeStart = new Date(eventdata["xaxis.range[0]"]);
-    plotInfo.rangeStartI = nearest(time, plotInfo.rangeStart); // THIS COULD BE SIMPLIFIED
-    plotInfo.rangeEnd = new Date(eventdata["xaxis.range[1]"]);
-    plotInfo.rangeEndI = nearest(time, plotInfo.rangeEnd);
+    //plotInfo.rangeStart = new Date(eventdata["xaxis.range[0]"]);
+    plotInfo.rangeStartI = nearest(time, new Date(eventdata["xaxis.range[0]"])); // THIS COULD BE SIMPLIFIED
+    plotInfo.rangeEndI = nearest(time, new Date(eventdata["xaxis.range[1]"]));
 
     // Change the range of the slider
     document.getElementById("range").max =
       plotInfo.rangeEndI - plotInfo.rangeStartI;
+    // TODO: Make  a nearest search
+
+    // Update the max value on the graph
+
+    // FUNCTION TO GET THE MAXIMA IS VERY COSTLY IN TIME
+    plotInfo.maxDisp = 0;
+    //-----------DND-----------
+
+    /*for (i = 0; i < selected.arr.length; i++) {
+      let maxima = Math.max(
+        ...unpack(gdata, selected.arr[i].id).slice(
+          plotInfo.rangeStartI,
+          plotInfo.rangeEndI
+        )
+      );
+      plotInfo.maxDisp = Math.max(plotInfo.maxDisp, maxima);
+    }*/
+
+    //console.log(plotInfo.maxDisp);
     // DEBUG
     //console.log(document.getElementById("range").max);
   });
 }
 
+// ---------------- Some JS for collapsible -------------------
 var coll = document.getElementsByClassName("collapsible");
 var i;
 
