@@ -363,7 +363,9 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   };
 
   document.getElementById("noverlap").onclick = function() {
+    startSpinner();
     s.startNoverlap();
+    stopSpinner();
   };
 });
 
@@ -511,29 +513,26 @@ for (i = 0; i < coll.length; i++) {
   });
 }
 
-//------ SPINNER.JS TEST ----
-//import Spinner from "./lib/spin.js";
-/*
-var opts = {
-  lines: 13, // The number of lines to draw
-  length: 38, // The length of each line
-  width: 17, // The line thickness
-  radius: 45, // The radius of the inner circle
-  scale: 1, // Scales overall size of the spinner
-  corners: 1, // Corner roundness (0..1)
-  color: "#ffffff", // CSS color or array of colors
-  fadeColor: "transparent", // CSS color or array of colors
-  speed: 1, // Rounds per second
-  rotate: 0, // The rotation offset
-  animation: "spinner-line-fade-quick", // The CSS animation name for the lines
-  direction: 1, // 1: clockwise, -1: counterclockwise
-  zIndex: 2e9, // The z-index (defaults to 2000000000)
-  className: "spinner", // The CSS class to assign to the spinner
-  top: "50%", // Top position relative to parent
-  left: "50%", // Left position relative to parent
-  shadow: "0 0 1px transparent", // Box-shadow for the lines
-  position: "absolute" // Element positioning
+function startSpinner() {
+  roller = document.getElementById("roller");
+  roller.style.display = "block";
+  console.log("This might take some time...");
+}
+function stopSpinner() {
+  roller = document.getElementById("roller");
+  roller.style.display = "none";
+}
+
+// Test button TBR
+let spin = false;
+document.getElementById("TEST").onclick = function() {
+  if (spin == false) {
+    startSpinner();
+    spin = true;
+  } else {
+    stopSpinner();
+    spin = false;
+  }
 };
 
-var target = document.getElementById("sigma-container");
-var spinner = new Spinner(opts).spin(target);*/
+stopSpinner();
