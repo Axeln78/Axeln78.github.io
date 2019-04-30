@@ -3,6 +3,8 @@
 // EXPORTABLE MODULE
 //var nearest = require("nearest-date");
 // Changes made to https://www.npmjs.com/package/nearest-date
+
+// WE SHOULD BE ABLE TO CHANGE THIS SIMPLE LOOP TO A DICHOTOMY!
 function nearest(dates, target) {
   if (!target) target = Date.now();
   else if (target instanceof Date) target = target.getTime();
@@ -12,12 +14,16 @@ function nearest(dates, target) {
 
   dates.forEach(function(date, index) {
     date = new Date(date).getTime();
-    var distance = Math.abs(date - target);
+    let distance = Math.abs(date - target);
     if (distance < nearest) {
       nearest = distance;
       winner = index;
     }
   });
+  if (winner == -1) {
+    console.log("// DEBUG: Issue with the scope value of var 'winner'");
+  }
+
   return winner;
 }
 
@@ -70,7 +76,7 @@ var plotInfo = {
   rangeStartI: 0,
   rangeEndI: 5278,
   maxDisp: 10000,
-  selectedTimeI: this.rangeStartI
+  selectedTimeI: 0
 };
 
 // ---------------- Methods added to Sigma -------------------- //
@@ -188,6 +194,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     document.getElementById("lower-threshold").value = 0;
     document.getElementById("higher-threshold").value = 100000;
     filterActivity();
+    PlotI(selected.arr);
   };
 
   // Export FUNCTIONS
@@ -258,6 +265,8 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     timestamp = document.getElementById("range").value;
     lt = document.getElementById("lower-threshold").value;
     ht = document.getElementById("higher-threshold").value;
+    //if (lt > 0) {
+    // Otherwise no need to go through all of the graph
     filter
       .undo("activity")
       .nodesBy(function(n) {
@@ -267,6 +276,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
         return val >= lt && val <= ht;
       }, "activity")
       .apply();
+    //}
   }
 
   function filterEdges(length) {
@@ -390,10 +400,12 @@ Plotly.d3.csv("./data/Data_hourly.csv", function(err, rows) {
   time = unpack(gdata, "Date");
   (plotInfo.startDate = new Date(time[0])),
     (plotInfo.endDate = new Date(time[time.length - 1]));
+
+  stopSpinner();
+  PlotI([]);
 });
 
 //plot initial empty box
-PlotI([]);
 function PlotI(nodes) {
   plot = document.getElementById("Plot");
   var data = [];
@@ -414,7 +426,6 @@ function PlotI(nodes) {
 
   var layout = {
     autosize: true,
-    //width: 500,
     margin: {
       l: 50,
       r: 50,
@@ -422,8 +433,6 @@ function PlotI(nodes) {
       t: 50,
       pad: 0
     },
-    //height: 200,
-    // HERE MAKE AN IF FOR STARTDATE AND endDate
     xaxis: {
       range: [time[plotInfo.rangeStartI], time[plotInfo.rangeEndI]],
       type: "date" //,
@@ -449,7 +458,7 @@ function PlotI(nodes) {
         x1: time[plotInfo.selectedTimeI + 1],
         y1: 1,
         fillcolor: "#F9812A",
-        opacity: 0.8,
+        opacity: 0.9,
         line: {
           width: 0
         }
@@ -467,8 +476,16 @@ function PlotI(nodes) {
   plot.on("plotly_relayout", function(eventdata) {
     // Changes the global parameters for the
     //plotInfo.rangeStart = new Date(eventdata["xaxis.range[0]"]);
-    plotInfo.rangeStartI = nearest(time, new Date(eventdata["xaxis.range[0]"])); // THIS COULD BE SIMPLIFIED
-    plotInfo.rangeEndI = nearest(time, new Date(eventdata["xaxis.range[1]"]));
+    if (eventdata["xaxis.range[0]"]) {
+      plotInfo.rangeStartI = nearest(
+        time,
+        new Date(eventdata["xaxis.range[0]"])
+      ); // THIS COULD BE SIMPLIFIED
+      plotInfo.rangeEndI = nearest(time, new Date(eventdata["xaxis.range[1]"]));
+    } else {
+      plotInfo.rangeStartI = 0;
+      plotInfo.rangeEndI = time.length - 1;
+    }
 
     // Change the range of the slider
     document.getElementById("range").max =
@@ -513,6 +530,8 @@ for (i = 0; i < coll.length; i++) {
   });
 }
 
+// ------------------ Spinner animation functions ---------------
+
 function startSpinner() {
   roller = document.getElementById("roller");
   roller.style.display = "block";
@@ -522,17 +541,3 @@ function stopSpinner() {
   roller = document.getElementById("roller");
   roller.style.display = "none";
 }
-
-// Test button TBR
-let spin = false;
-document.getElementById("TEST").onclick = function() {
-  if (spin == false) {
-    startSpinner();
-    spin = true;
-  } else {
-    stopSpinner();
-    spin = false;
-  }
-};
-
-stopSpinner();
