@@ -18,11 +18,11 @@ body {
   width: 230px;
   background-color: rgb(249, 247, 237);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  overflow: scroll;
+  overflow: auto;
 }
 #commands-container > div {
   margin: 10px;
-  overflow: scroll;
+  overflow: auto;
 }
 
 #plot-container {
@@ -68,5 +68,5 @@ body {
 .content {
   /*padding: 0 18px;*/
   display: none;
-  overflow: scroll;
+  overflow: auto;
 }
