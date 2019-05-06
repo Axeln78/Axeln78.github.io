@@ -1,3 +1,6 @@
+// HYPERPARAMETERS
+// PlotInfo startDate and length
+
 // System functions and global initialisations
 
 // EXPORTABLE MODULE
@@ -27,12 +30,12 @@ function nearest(dates, target) {
   return winner;
 }
 
-// Date add addDays proto TBR?
-/*Date.prototype.addDays = function(days) {
-  var date = new Date(this.valueOf());
-  date.setDate(date.getDate() + days);
-  return date;
-};*/
+// Returns the date with one added hour
+Date.prototype.addHours = function(h) {
+  let newDate = new Date(this);
+  newDate.setHours(newDate.getHours() + h);
+  return newDate;
+};
 
 // Array / Object holding the values of the selected nodes
 var selected = {
@@ -72,13 +75,22 @@ var selected = {
 // linked with the activity
 // TODO: This need to be changed at some point
 var plotInfo = {
-  startDate: new Date("2014-09-24"),
-  endDate: new Date("2015-04-30"),
+  startDate: new Date("2014-09-23 02:00:00"),
+  nb_hours: 5278,
   rangeStartI: 0,
-  rangeEndI: 5278,
   maxDisp: 10000,
   selectedTimeI: 0
 };
+plotInfo.endDate = plotInfo.startDate.addHours(plotInfo.nb_hours);
+plotInfo.rangeEndI = plotInfo.nb_hours;
+
+// Make a time frame without actually reading the time from a List
+let length = 100;
+var time = [];
+
+for (i = 0; i < plotInfo.nb_hours; i++) {
+  time.push(plotInfo.startDate.addHours(i));
+}
 
 // ---------------- Methods added to Sigma -------------------- //
 
@@ -181,7 +193,29 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
     document.getElementById("DateIndicator").innerHTML =
       "selected Time: " + time[plotInfo.selectedTimeI];
     // Update a second trace of the plot where the bar is stored to move it at y = "selected time"
-    PlotI(selected.arr);
+    let updateLayout = {
+      shapes: [
+        // 1st highlight during Feb 4 - Feb 6
+        {
+          type: "rect",
+          // x-reference is assigned to the x-values
+          xref: "x",
+          // y-reference is assigned to the plot paper [0,1]
+          yref: "paper",
+          x0: time[plotInfo.selectedTimeI],
+          y0: 0,
+          x1: time[plotInfo.selectedTimeI + 1],
+          y1: 1,
+          fillcolor: "#F9812A",
+          opacity: 0.9,
+          line: {
+            width: 0.2
+          }
+        }
+      ]
+    };
+    Plotly.relayout(document.getElementById("Plot"), updateLayout);
+    //PlotI(selected.arr);
   };
 
   document.getElementById("lower-threshold").oninput = function() {
@@ -409,9 +443,16 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
 
 plot = document.getElementById("Plot");
 
+document.getElementById("CheckboxPlot").onchange = function() {
+  console.log("kluut");
+  //let update = { 'showlegend': true };
+  //Plotly.relayout(plot, update);
+  PlotI(selected.arr);
+};
+
 // Read the activity data
 var gdata = [];
-var time = [];
+//var time = [];
 
 function unpack(rows, key) {
   return rows.map(function(row) {
@@ -421,12 +462,13 @@ function unpack(rows, key) {
 
 Plotly.d3.csv("./data/Data_hourly.csv", function(err, rows) {
   gdata = rows;
-  time = unpack(gdata, "Date");
-  (plotInfo.startDate = new Date(time[0])),
-    (plotInfo.endDate = new Date(time[time.length - 1]));
+  // TBR IF WE KEEP THIS TIME FORMAT
+  //time = unpack(gdata, "Date");
+  //(plotInfo.startDate = new Date(time[0])),
+  //  (plotInfo.endDate = new Date(time[time.length - 1]));
 
-  stopSpinner();
   PlotI([]);
+  stopSpinner();
 });
 
 //plot initial empty box
@@ -458,10 +500,8 @@ function PlotI(nodes) {
       pad: 0
     },
     xaxis: {
-      range: [time[plotInfo.rangeStartI], time[plotInfo.rangeEndI]],
-      type: "date" //,
-      //rangeslider: { range: [plotInfo.startDate, plotInfo.endDate] },
-      //type: "date"
+      range: [time[plotInfo.rangeStartI], time[plotInfo.rangeEndI - 1]],
+      type: "date"
     },
     yaxis: {
       autorange: true,
@@ -469,31 +509,27 @@ function PlotI(nodes) {
       type: "linear"
     },
 
-    shapes: [
-      // 1st highlight during Feb 4 - Feb 6
-      {
-        type: "rect",
-        // x-reference is assigned to the x-values
-        xref: "x",
-        // y-reference is assigned to the plot paper [0,1]
-        yref: "paper",
-        x0: time[plotInfo.selectedTimeI],
-        y0: 0,
-        x1: time[plotInfo.selectedTimeI + 1],
-        y1: 1,
-        fillcolor: "#F9812A",
-        opacity: 0.9,
-        line: {
-          width: 0
-        }
-      }
-    ]
     // Here could be some indicative values for abs height and width
     //height: 500,
     //width: 500
+    showlegend: document.getElementById("CheckboxPlot").checked,
+    legend: {
+      x: 0,
+      y: 1,
+      traceorder: "normal",
+      font: {
+        family: "sans-serif",
+        size: 10,
+        color: "#000"
+      },
+      bgcolor: "#E2E2E2",
+      bordercolor: "#FFFFFF",
+      borderwidth: 1
+    }
   };
 
-  Plotly.newPlot(plot, data, layout);
+  //Plotly.newPlot(plot, data, layout);
+  Plotly.react(plot, data, layout);
   // When the user zooms on the plot, he modifies the selected time range,
   // this information is then sored in the global plotInfo
 
@@ -507,14 +543,15 @@ function PlotI(nodes) {
       ); // THIS COULD BE SIMPLIFIED
       plotInfo.rangeEndI = nearest(time, new Date(eventdata["xaxis.range[1]"]));
     } else {
-      plotInfo.rangeStartI = 0;
-      plotInfo.rangeEndI = time.length - 1;
+      // ISSUR E WITH THIS STATEMENT
+      //plotInfo.rangeStartI = 0;
+      //plotInfo.rangeEndI = time.length - 1;
     }
 
     // Change the range of the slider
     document.getElementById("range").max =
-      plotInfo.rangeEndI - plotInfo.rangeStartI;
-    // TODO: Make  a nearest search
+      plotInfo.rangeEndI - plotInfo.rangeStartI - 1;
+    // TODO: Make a nearest search
 
     // Update the max value on the graph
 
