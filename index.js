@@ -75,8 +75,10 @@ var selected = {
 // linked with the activity
 // TODO: This need to be changed at some point
 var plotInfo = {
-  startDate: new Date("2014-09-23 02:00:00"),
-  nb_hours: 5278,
+  //startDate: new Date("2014-09-23 02:00:00"),
+  startDate: new Date("2018-07-31 22:00:00"),
+  //nb_hours: 5278,
+  nb_hours: 743,
   rangeStartI: 0,
   maxDisp: 10000,
   selectedTimeI: 0
@@ -157,8 +159,8 @@ sigmaConfig = {
 // ------ Sigma object creation and graph inportation---------- //
 var s2 = new sigma(sigmaConfig);
 
-sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
-  //sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
+//sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
+sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
   s.refresh();
   // ------- INIT --------- //
   var filter = new sigma.plugins.filter(s);
@@ -215,7 +217,6 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
       ]
     };
     Plotly.relayout(document.getElementById("Plot"), updateLayout);
-    //PlotI(selected.arr);
   };
 
   document.getElementById("lower-threshold").oninput = function() {
@@ -255,7 +256,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
       description: "Generated graph from the Wikipedia dataset"
     });
   };
-  document.getElementById("Checkbox").onchange = function() {
+  document.getElementById("CheckboxNoverlap").onchange = function() {
     console.log("Changing selection mode");
     if (this.checked) {
       selected.multi = true;
@@ -446,7 +447,6 @@ plot = document.getElementById("Plot");
 document.getElementById("CheckboxPlot").onchange = function() {
   let update = { showlegend: this.checked };
   Plotly.relayout(document.getElementById("Plot"), update);
-  //PlotI(selected.arr);
 };
 
 // Read the activity data
@@ -459,7 +459,10 @@ function unpack(rows, key) {
   });
 }
 
-Plotly.d3.csv("./data/Data_hourly.csv", function(err, rows) {
+Plotly.d3.csv("./data/LargeG/activations_dict_unpacked.csv", function(
+  err,
+  rows
+) {
   gdata = rows;
   // TBR IF WE KEEP THIS TIME FORMAT
   //time = unpack(gdata, "Date");
