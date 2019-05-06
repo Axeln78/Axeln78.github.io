@@ -41,6 +41,7 @@
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script src="./lib/sigma_js/sigma.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
+    <script src="./lib/sigma_js/plugins/sigma.parsers.json.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.layout.forceAtlas2.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.layout.noverlap.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.plugins.filter.min.js"></script>
@@ -74,7 +75,15 @@
         <div class="content">
           <div class="row">
             <div class="row" id="Render">
-              <button id="layout" type="button">Force Atlas 2</button>
+              <button id="layout" type="button">Force Atlas 2</button><br />
+              <input
+                id="CheckboxLayout"
+                type="checkbox"
+                name="Neighbour node selection"
+                value="true"
+              />
+              Lin-Log-mode<br />
+
               <button id="noverlap" type="button">Noverlap</button><br />
               <input
                 id="Checkbox"

@@ -37,6 +37,7 @@ function nearest(dates, target) {
 // Array / Object holding the values of the selected nodes
 var selected = {
   multi: false, // Bool for the selection mode
+  linLog: false,
   obj: {},
   arr: [],
   //mode: "Single",
@@ -145,6 +146,7 @@ sigmaConfig = {
 var s2 = new sigma(sigmaConfig);
 
 sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
+  //sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
   s.refresh();
   // ------- INIT --------- //
   var filter = new sigma.plugins.filter(s);
@@ -225,6 +227,26 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
       selected.multi = true;
     } else {
       selected.multi = false;
+    }
+  };
+  document.getElementById("CheckboxLayout").onchange = function() {
+    console.log("Changing selection mode");
+    if (this.checked) {
+      selected.linLog = true;
+    } else {
+      selected.linLog = false;
+    }
+    // Restart Force Atlas 2
+    if (s.isForceAtlas2Running()) {
+      s.killForceAtlas2();
+      s.startForceAtlas2({
+        slowDown: 1,
+        linLogMode: selected.linLog,
+        iterationsPerRender: 2,
+        scalingRatio: 40,
+        worker: true,
+        barnesHutOptimize: true
+      });
     }
   };
 
@@ -320,7 +342,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   }
 
   s.bind("clickStage", function(e) {
-    // POTOOOOOOOOOO
+    // POTOOOOOOOOOO POTOOOOOOOOOO
     if (selected.disp == false) {
       s.graph.activate();
       s.refresh();
@@ -343,7 +365,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   // TODO: add a timer to avoid getting stuck in the Force atlas calculus
   // Configure the noverlap layout:
   var noverlapListener = s.configNoverlap({
-    nodeMargin: 0.1,
+    nodeMargin: 0.01,
     scaleNodes: 1.05,
     gridSize: 75, //75
     easing: "quadraticInOut", // animation transition function
@@ -352,13 +374,14 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
   });
 
   var force = false;
+
   document.getElementById("layout").onclick = function() {
     if (!force) {
       s.startForceAtlas2({
         slowDown: 1,
-        linLogMode: true,
-        iterationsPerRender: 1,
-        scalingRatio: 2,
+        linLogMode: selected.linLog,
+        iterationsPerRender: 2,
+        scalingRatio: 40,
         worker: true,
         barnesHutOptimize: true
       });
@@ -374,6 +397,7 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
 
   document.getElementById("noverlap").onclick = function() {
     startSpinner();
+    console.log("Noverlap Start");
     s.startNoverlap();
     stopSpinner();
   };
