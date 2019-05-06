@@ -444,10 +444,9 @@ sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
 plot = document.getElementById("Plot");
 
 document.getElementById("CheckboxPlot").onchange = function() {
-  console.log("kluut");
-  //let update = { 'showlegend': true };
-  //Plotly.relayout(plot, update);
-  PlotI(selected.arr);
+  let update = { showlegend: this.checked };
+  Plotly.relayout(document.getElementById("Plot"), update);
+  //PlotI(selected.arr);
 };
 
 // Read the activity data
