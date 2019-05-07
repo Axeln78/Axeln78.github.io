@@ -73,7 +73,6 @@ var selected = {
 
 // Object holding information on the information needed for the time-display
 // linked with the activity
-// TODO: This need to be changed at some point
 var plotInfo = {
   //startDate: new Date("2014-09-23 02:00:00"),
   startDate: new Date("2018-07-31 22:00:00"),
@@ -83,13 +82,12 @@ var plotInfo = {
   maxDisp: 10000,
   selectedTimeI: 0
 };
+
 plotInfo.endDate = plotInfo.startDate.addHours(plotInfo.nb_hours);
 plotInfo.rangeEndI = plotInfo.nb_hours;
 
-// Make a time frame without actually reading the time from a List
-let length = 100;
+// Make a time frame given the first timestamp and the number of hours
 var time = [];
-
 for (i = 0; i < plotInfo.nb_hours; i++) {
   time.push(plotInfo.startDate.addHours(i));
 }
@@ -139,6 +137,16 @@ sigma.classes.graph.addMethod("activate", function() {
   });
 });
 
+sigma.classes.graph.addMethod("storeEdgeLenght", function() {
+  for (let i = 0; i < this.edgesArray.length; i++) {
+    let e = this.edgesArray[i];
+    let x1 = this.nodes(e.source).x;
+    let y1 = this.nodes(e.source).y;
+    let x2 = this.nodes(e.target).x;
+    let y2 = this.nodes(e.target).y;
+    e.length = Math.hypot(x2 - x1, y2 - y1);
+  }
+});
 // Configuration of sigma
 // Sigma settings: https://github.com/jacomyal/sigma.js/wiki/Settings
 sigmaConfig = {
@@ -231,7 +239,7 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
     document.getElementById("lower-threshold").value = 0;
     document.getElementById("higher-threshold").value = 100000;
     filterActivity();
-    PlotI(selected.arr);
+    plotActivity(selected.arr);
   };
 
   // Export FUNCTIONS
@@ -304,7 +312,7 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
     // Draw the nodes that should stay activated
     // TODO: pop the plot open
     s.graph.activate();
-    PlotI(selected.arr);
+    plotActivity(selected.arr);
     s.refresh();
 
     // pop up the plot when clicking on a node
@@ -333,20 +341,21 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
         return val >= lt && val <= ht;
       }, "activity")
       .apply();
-    //}
   }
 
   function filterEdges(length) {
     filter
       .undo("Short edge cutting")
       .edgesBy(function(e) {
-        return e.label > length;
+        return e.length > length;
       }, "Short edge cutting")
       .apply();
   }
+
   document.getElementById("edge-threshold").onchange = function() {
     // need to check if the label changes with the zoom!
     length = this.value;
+    s.graph.storeEdgeLenght();
     filterEdges(length);
   };
 
@@ -391,7 +400,7 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
   document.getElementById("selectionR").onclick = function() {
     selected.reset();
     restartGV();
-    PlotI(selected.arr);
+    plotActivity(selected.arr);
   };
 
   // -------------------- LAYOUT & plugins -------------------- //
@@ -469,12 +478,12 @@ Plotly.d3.csv("./data/LargeG/activations_dict_unpacked.csv", function(
   //(plotInfo.startDate = new Date(time[0])),
   //  (plotInfo.endDate = new Date(time[time.length - 1]));
 
-  PlotI([]);
+  plotActivity([]);
   stopSpinner();
 });
 
 //plot initial empty box
-function PlotI(nodes) {
+function plotActivity(nodes) {
   plot = document.getElementById("Plot");
   var data = [];
   nodes.forEach(function(n) {
@@ -544,6 +553,19 @@ function PlotI(nodes) {
         new Date(eventdata["xaxis.range[0]"])
       ); // THIS COULD BE SIMPLIFIED
       plotInfo.rangeEndI = nearest(time, new Date(eventdata["xaxis.range[1]"]));
+
+      //-----------DND-----------
+      // FUNCTION TO GET THE MAXIMA IS VERY COSTLY IN TIME
+      plotInfo.maxDisp = 0;
+      for (i = 0; i < selected.arr.length; i++) {
+        let maxima = Math.max(
+          ...unpack(gdata, selected.arr[i].id).slice(
+            plotInfo.rangeStartI,
+            plotInfo.rangeEndI
+          )
+        );
+        plotInfo.maxDisp = Math.max(plotInfo.maxDisp, maxima);
+      }
     } else {
       // ISSUR E WITH THIS STATEMENT
       //plotInfo.rangeStartI = 0;
@@ -553,27 +575,6 @@ function PlotI(nodes) {
     // Change the range of the slider
     document.getElementById("range").max =
       plotInfo.rangeEndI - plotInfo.rangeStartI - 1;
-    // TODO: Make a nearest search
-
-    // Update the max value on the graph
-
-    // FUNCTION TO GET THE MAXIMA IS VERY COSTLY IN TIME
-    plotInfo.maxDisp = 0;
-    //-----------DND-----------
-
-    /*for (i = 0; i < selected.arr.length; i++) {
-      let maxima = Math.max(
-        ...unpack(gdata, selected.arr[i].id).slice(
-          plotInfo.rangeStartI,
-          plotInfo.rangeEndI
-        )
-      );
-      plotInfo.maxDisp = Math.max(plotInfo.maxDisp, maxima);
-    }*/
-
-    //console.log(plotInfo.maxDisp);
-    // DEBUG
-    //console.log(document.getElementById("range").max);
   });
 }
 
