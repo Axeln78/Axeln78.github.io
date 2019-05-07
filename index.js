@@ -117,7 +117,7 @@ sigma.classes.graph.addMethod("activate", function() {
     if (selected.arr[n.id]) {
       n.color = n.originalColor;
     } else {
-      n.color = "#eee";
+      n.color = "#444";
     }
   });
 
@@ -132,7 +132,7 @@ sigma.classes.graph.addMethod("activate", function() {
     if (selected.obj[e.source] && selected.obj[e.target]) {
       e.color = e.originalColor;
     } else {
-      e.color = "#eee";
+      e.color = "#444";
     }
   });
 });
@@ -158,6 +158,7 @@ sigmaConfig = {
     //drawEdges: false,
     //drawLabels: false,
     scalingMode: "outside",
+    maxEdgeSize: 0.01,
     //maxEdgeSize: 1,
     //minEdgeSize: 0.5,
     labelThreshold: 14
