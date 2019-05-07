@@ -130,9 +130,10 @@ sigma.classes.graph.addMethod("activate", function() {
   // Edges
   this.edges().forEach(function(e) {
     if (selected.obj[e.source] && selected.obj[e.target]) {
-      e.color = e.originalColor;
+      let colour = e.originalColor;
+      e.color = colour.replace(".1", ".5");
     } else {
-      e.color = "#444";
+      e.color = "rgba(68,68,68,.1)";
     }
   });
 });
@@ -504,6 +505,9 @@ function plotActivity(nodes) {
 
   var layout = {
     autosize: true,
+    paper_bgcolor: "#E2E2E2", // 646464
+    plot_bgcolor: "#E2E2E2",
+
     margin: {
       l: 50,
       r: 50,
@@ -523,7 +527,7 @@ function plotActivity(nodes) {
 
     // Here could be some indicative values for abs height and width
     //height: 500,
-    //width: 500
+    width: 500,
     showlegend: document.getElementById("CheckboxPlot").checked,
     legend: {
       x: 0,
@@ -541,7 +545,7 @@ function plotActivity(nodes) {
   };
 
   //Plotly.newPlot(plot, data, layout);
-  Plotly.react(plot, data, layout);
+  Plotly.react(plot, data, layout, { responsive: true });
   // When the user zooms on the plot, he modifies the selected time range,
   // this information is then sored in the global plotInfo
 
