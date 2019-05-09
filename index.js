@@ -6,7 +6,8 @@ var hyperparameters = {
   filename: "/data/LargeG/graph.json",
   // "2014-09-23 02:00:00"
   startdate: "2018-07-31 22:00:00",
-  activityDir: "./data/LargeG/activations_dict_unpacked.csv",
+  //activityDir: "./data/LargeG/activations_dict_unpacked.csv",
+  activityDir: "./data/LargeG/activations_dict.csv",
   // 5278
   nb_hours: 743
 };
@@ -475,6 +476,26 @@ sigma.parsers.json(hyperparameters.filename, sigmaInstance, function(s) {
   };
 });
 
+// ------------------------ Unpacking function for the dir -------------------//
+
+function unpack_dict(d, length) {
+  /* Unpacks dictionary `d` {list_index: value} into a list.
+  `length` is total number of elements in the resulting list.
+
+  Index corresponds to `list_index` and value at that index corresponds to `value`.
+  I.e. list[list_index] = value
+  Indexes missing in dictionary correspond to `0` values.
+
+
+ l = [0] * length
+ keys = list(d.keys())
+ keys.sort()
+ for key in keys:
+     l[key] = d[key]
+ return l
+*/
+}
+
 // -------------------- Interactive plot part ------------------------ //
 // TODO: go over to only use the list to have the spacial info of the color of
 // the node, maybe with time it will prove more robust
@@ -503,6 +524,13 @@ Plotly.d3.csv(hyperparameters.activityDir, function(err, rows) {
   //(plotInfo.startDate = new Date(time[0])),
   //  (plotInfo.endDate = new Date(time[time.length - 1]));
 
+  // THIS WORKS BUT IT SEEMS LIKE THE CSV FILE IS DOING ALL THE JOB!
+  for (let i in gdata) {
+    for (let j in gdata[i])
+      if (gdata[i][j] == "") {
+        gdata[i][j] = "0";
+      }
+  }
   plotActivity([]);
   stopSpinner();
 });
