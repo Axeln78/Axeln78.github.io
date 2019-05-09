@@ -74,6 +74,14 @@
         <button class="collapsible">Layout</button>
         <div class="content">
           <div class="row">
+            <input
+              id="CheckboxEdges"
+              type="checkbox"
+              name="Show edges"
+              value="null"
+            />
+            Show edges<br />
+
             <div class="row" id="Render">
               <button id="layout" type="button">Force Atlas 2</button><br />
               <input
@@ -86,12 +94,12 @@
 
               <button id="noverlap" type="button">Noverlap</button><br />
               <input
-                id="CheckboxNoverlap"
+                id="CheckboxMultiselect"
                 type="checkbox"
                 name="Neighbour node selection"
                 value="Null"
               />
-              Group node selection<br />
+              Single node selection<br />
 
               <div>
                 <button id="selectionR" type="button">Reset selection</button>
@@ -111,7 +119,7 @@
                   type="number"
                   id="edge-threshold"
                   name="ethresh"
-                  value="0"
+                  value="60000"
                 />
               </div>
             </div>

@@ -1,7 +1,15 @@
-// HYPERPARAMETERS
+// hyperparameters
 // PlotInfo startDate and length
 
 // System functions and global initialisations
+var hyperparameters = {
+  filename: "/data/LargeG/graph.json",
+  // "2014-09-23 02:00:00"
+  startdate: "2018-07-31 22:00:00",
+  activityDir: "./data/LargeG/activations_dict_unpacked.csv",
+  // 5278
+  nb_hours: 743
+};
 
 // EXPORTABLE MODULE
 //var nearest = require("nearest-date");
@@ -39,12 +47,11 @@ Date.prototype.addHours = function(h) {
 
 // Array / Object holding the values of the selected nodes
 var selected = {
-  multi: false, // Bool for the selection mode
-  linLog: false,
-  obj: {},
-  arr: [],
-  //mode: "Single",
-  disp: false,
+  multi: true, // Bool for the selection mode
+  linLog: false, // Bool for force atlas settings
+  obj: {}, // Object holding the selected nodes
+  arr: [], // Array ------- --- -------- -----
+  disp: false, //
   add: function(node) {
     // Checks if a node is already in the list and removes it or adds it
     if (this.arr.lastIndexOf(node) != -1) {
@@ -54,7 +61,7 @@ var selected = {
       this.arr = this.arr.concat(node);
       this.obj[node.id] = node;
     }
-  },
+  }, // Method for adding nodes to the selection
   rm: function(node) {
     if (this.arr.lastIndexOf(node) != -1) {
       this.arr.splice(this.arr.lastIndexOf(node), 1);
@@ -63,21 +70,19 @@ var selected = {
       console.error("Undefined node");
     }
     console.log("rm");
-  },
+  }, // ------ --- removing ---- -- --- --------
   reset: function() {
     this.obj = {};
     this.arr = [];
     console.log("Selection reset");
-  }
+  } // ------ --- resetting the selection of the nodes
 };
 
 // Object holding information on the information needed for the time-display
 // linked with the activity
 var plotInfo = {
-  //startDate: new Date("2014-09-23 02:00:00"),
-  startDate: new Date("2018-07-31 22:00:00"),
-  //nb_hours: 5278,
-  nb_hours: 743,
+  startDate: new Date(hyperparameters.startdate),
+  nb_hours: hyperparameters.nb_hours,
   rangeStartI: 0,
   maxDisp: 10000,
   selectedTimeI: 0
@@ -131,7 +136,7 @@ sigma.classes.graph.addMethod("activate", function() {
   this.edges().forEach(function(e) {
     if (selected.obj[e.source] && selected.obj[e.target]) {
       let colour = e.originalColor;
-      e.color = colour.replace(".1", ".5");
+      e.color = colour.replace(".1", ".4");
     } else {
       e.color = "rgba(68,68,68,.1)";
     }
@@ -148,6 +153,24 @@ sigma.classes.graph.addMethod("storeEdgeLenght", function() {
     e.length = Math.hypot(x2 - x1, y2 - y1);
   }
 });
+
+function drawEdges() {
+  sigmaInstance.settings("drawEdges", true);
+  sigmaInstance.refresh();
+}
+function hideEdges() {
+  sigmaInstance.settings("drawEdges", false);
+  sigmaInstance.refresh();
+}
+
+document.getElementById("CheckboxEdges").onchange = function() {
+  if (this.checked == true) {
+    drawEdges();
+  } else {
+    hideEdges();
+  }
+};
+
 // Configuration of sigma
 // Sigma settings: https://github.com/jacomyal/sigma.js/wiki/Settings
 sigmaConfig = {
@@ -156,7 +179,7 @@ sigmaConfig = {
     container: "sigma-container"
   },
   settings: {
-    //drawEdges: false,
+    drawEdges: false,
     //drawLabels: false,
     scalingMode: "outside",
     maxEdgeSize: 0.01,
@@ -167,10 +190,10 @@ sigmaConfig = {
 };
 
 // ------ Sigma object creation and graph inportation---------- //
-var s2 = new sigma(sigmaConfig);
+var sigmaInstance = new sigma(sigmaConfig);
 
-//sigma.parsers.gexf("/data/VizWiki5.gexf", s2, function(s) {
-sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
+//sigma.parsers.gexf("/data/VizWiki5.gexf", sigmaInstance, function(s) {
+sigma.parsers.json(hyperparameters.filename, sigmaInstance, function(s) {
   s.refresh();
   // ------- INIT --------- //
   var filter = new sigma.plugins.filter(s);
@@ -180,6 +203,7 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
   s.graph.nodes().forEach(function(n) {
     maxDegree = Math.max(maxDegree, s.graph.degree(n.id));
   });
+
   document.getElementById("max-degree-value").textContent = maxDegree;
   document.getElementById("rangeDegree").max = maxDegree;
 
@@ -190,6 +214,8 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
   s.graph.edges().forEach(function(e) {
     e.originalColor = e.color;
   });
+
+  s.graph.storeEdgeLenght();
 
   // ---------------- ELEMENT linked functions -------------------- //
   // Needs to go and get the data information of the activity in order to compare it here. Otherwise the interaction is good
@@ -255,6 +281,7 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
     // console.log(output);
   };
   document.getElementById("exportGEXF").onclick = function() {
+    startSpinner();
     console.log("exporting to GEXF...");
     s.toGEXF({
       download: true,
@@ -265,13 +292,14 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
       creator: "Wikimedia",
       description: "Generated graph from the Wikipedia dataset"
     });
+    stopSpinner();
   };
-  document.getElementById("CheckboxNoverlap").onchange = function() {
+  document.getElementById("CheckboxMultiselect").onchange = function() {
     console.log("Changing selection mode");
     if (this.checked) {
-      selected.multi = true;
-    } else {
       selected.multi = false;
+    } else {
+      selected.multi = true;
     }
   };
   document.getElementById("CheckboxLayout").onchange = function() {
@@ -282,9 +310,9 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
       selected.linLog = false;
     }
     // Restart Force Atlas 2
-    if (s.isForceAtlas2Running()) {
-      s.killForceAtlas2();
-      s.startForceAtlas2({
+    if (s.isForceAtlasigmaInstanceRunning()) {
+      s.killForceAtlasigmaInstance();
+      s.startForceAtlasigmaInstance({
         slowDown: 1,
         linLogMode: selected.linLog,
         iterationsPerRender: 2,
@@ -318,15 +346,11 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
     s.refresh();
 
     // pop up the plot when clicking on a node
-    plot = document.getElementById("plot-container");
+    let plot = document.getElementById("plot-container");
     plot.children[1].style.display = "block"; // fuggly magic number here
   });
 
   // -------------------- FILTER -------------------- //
-  // TODO: Filter edge lenths '(1)'
-  // TODO: Filter the viewed nodes
-
-  // '(1)'  - - need to remove the label by hand here
 
   function filterActivity() {
     timestamp = document.getElementById("range").value;
@@ -345,7 +369,8 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
       .apply();
   }
 
-  function filterEdges(length) {
+  function filterEdges() {
+    length = document.getElementById("edge-threshold").value;
     filter
       .undo("Short edge cutting")
       .edgesBy(function(e) {
@@ -353,12 +378,13 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
       }, "Short edge cutting")
       .apply();
   }
+  // Initialisations function call
+  filterEdges();
 
   document.getElementById("edge-threshold").onchange = function() {
     // need to check if the label changes with the zoom!
-    length = this.value;
-    s.graph.storeEdgeLenght();
-    filterEdges(length);
+    //length = this.value;
+    filterEdges();
   };
 
   document.getElementById("rangeDegree").oninput = function() {
@@ -423,7 +449,7 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
 
   document.getElementById("layout").onclick = function() {
     if (!force) {
-      s.startForceAtlas2({
+      s.startForceAtlasigmaInstance({
         slowDown: 1,
         linLogMode: selected.linLog,
         iterationsPerRender: 2,
@@ -433,10 +459,10 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
       });
       this.textContent = "Stop";
     } else {
-      s.stopForceAtlas2();
+      s.stopForceAtlasigmaInstance();
       this.textContent = "Start";
-      // Possible automatic no-overlap here
-      //s.startNoverlap();
+      s.graph.storeEdgeLenght();
+      filterEdges();
     }
     force = !force;
   };
@@ -453,7 +479,7 @@ sigma.parsers.json("/data/LargeG/graph.json", s2, function(s) {
 // TODO: go over to only use the list to have the spacial info of the color of
 // the node, maybe with time it will prove more robust
 
-plot = document.getElementById("Plot");
+var plot = document.getElementById("Plot");
 
 document.getElementById("CheckboxPlot").onchange = function() {
   let update = { showlegend: this.checked };
@@ -470,10 +496,7 @@ function unpack(rows, key) {
   });
 }
 
-Plotly.d3.csv("./data/LargeG/activations_dict_unpacked.csv", function(
-  err,
-  rows
-) {
+Plotly.d3.csv(hyperparameters.activityDir, function(err, rows) {
   gdata = rows;
   // TBR IF WE KEEP THIS TIME FORMAT
   //time = unpack(gdata, "Date");
@@ -486,7 +509,7 @@ Plotly.d3.csv("./data/LargeG/activations_dict_unpacked.csv", function(
 
 //plot initial empty box
 function plotActivity(nodes) {
-  plot = document.getElementById("Plot");
+  let plot = document.getElementById("Plot");
   var data = [];
   nodes.forEach(function(n) {
     let trace = {
@@ -545,7 +568,7 @@ function plotActivity(nodes) {
   };
 
   //Plotly.newPlot(plot, data, layout);
-  Plotly.react(plot, data, layout, { responsive: true });
+  Plotly.react(plot, data, layout, { responsive: false });
   // When the user zooms on the plot, he modifies the selected time range,
   // this information is then sored in the global plotInfo
 
