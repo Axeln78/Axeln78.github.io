@@ -415,14 +415,16 @@ sigma.parsers.json(hyperparameters.filename, sigmaInstance, function(s) {
   }
 
   s.bind("clickStage", function(e) {
-    // POTOOOOOOOOOO POTOOOOOOOOOO
-    if (selected.disp == false) {
-      s.graph.activate();
-      s.refresh();
-      selected.disp = true;
-    } else {
-      restartGV();
-      selected.disp = false;
+    // isDragging propriety : https://github.com/jacomyal/sigma.js/issues/342#issuecomment-58361925
+    if (!e.data.captor.isDragging) {
+      if (!selected.disp) {
+        s.graph.activate();
+        s.refresh();
+        selected.disp = true;
+      } else {
+        restartGV();
+        selected.disp = false;
+      }
     }
   });
 
