@@ -4,11 +4,12 @@
 // System functions and global initialisations
 var hyperparameters = {
   filename: "/data/LargeG/graph.json",
-  // "2014-09-23 02:00:00"
-  startdate: "2018-07-31 22:00:00",
+  startdate: "2014-09-23 02:00:00",
+  //startdate: "2018-07-31 22:00:00",
   //activityDir: "./data/LargeG/activations_dict_unpacked.csv",
   activityDir: "./data/LargeG/activations_dict.csv",
-  // 5278
+  //activityDir: "./data/Data_hourly.csv",
+  //nb_hours: 5278
   nb_hours: 743
 };
 
@@ -86,7 +87,9 @@ var plotInfo = {
   nb_hours: hyperparameters.nb_hours,
   rangeStartI: 0,
   maxDisp: 10000,
-  selectedTimeI: 0
+  selectedTimeI: 0,
+  nattribute: [],
+  eAttributes: []
 };
 
 plotInfo.endDate = plotInfo.startDate.addHours(plotInfo.nb_hours);
@@ -181,12 +184,16 @@ sigmaConfig = {
   },
   settings: {
     drawEdges: false,
-    //drawLabels: false,
+    drawLabels: false,
     scalingMode: "outside",
     maxEdgeSize: 0.01,
     //maxEdgeSize: 1,
     //minEdgeSize: 0.5,
-    labelThreshold: 14
+    labelThreshold: 5,
+
+    // onnly for large graphs?
+    hideEdgesOnMove: true
+    //batchEdgesDrawing: true
   }
 };
 
@@ -217,6 +224,18 @@ sigma.parsers.json(hyperparameters.filename, sigmaInstance, function(s) {
   });
 
   s.graph.storeEdgeLenght();
+  // --------------------- custom plugin tryout ---------------------- //
+
+  plotInfo.nAttributes = Object.keys(sigmaInstance.graph.nodes()[0]);
+  plotInfo.eAttributes = Object.keys(sigmaInstance.graph.edges()[0]);
+  select = document.getElementById("attributeSelect");
+
+  for (i in plotInfo.nAttributes) {
+    var opt = document.createElement("option");
+    opt.value = plotInfo.nAttributes[i];
+    opt.innerHTML = plotInfo.nAttributes[i];
+    select.appendChild(opt);
+  }
 
   // ---------------- ELEMENT linked functions -------------------- //
   // Needs to go and get the data information of the activity in order to compare it here. Otherwise the interaction is good
@@ -311,9 +330,9 @@ sigma.parsers.json(hyperparameters.filename, sigmaInstance, function(s) {
       selected.linLog = false;
     }
     // Restart Force Atlas 2
-    if (s.isForceAtlasigmaInstanceRunning()) {
-      s.killForceAtlasigmaInstance();
-      s.startForceAtlasigmaInstance({
+    if (s.isForceAtlas2Running()) {
+      s.killForceAtlas2();
+      s.startForceAtlas2({
         slowDown: 1,
         linLogMode: selected.linLog,
         iterationsPerRender: 2,
@@ -341,7 +360,6 @@ sigma.parsers.json(hyperparameters.filename, sigmaInstance, function(s) {
       }
     }
     // Draw the nodes that should stay activated
-    // TODO: pop the plot open
     s.graph.activate();
     plotActivity(selected.arr);
     s.refresh();
@@ -381,6 +399,17 @@ sigma.parsers.json(hyperparameters.filename, sigmaInstance, function(s) {
   }
   // Initialisations function call
   filterEdges();
+
+  function filterAnything() {
+    val = document.getElementById("customThresh").values;
+    //document.getElementById("elementSelect").value
+    filter
+      .undo("AnythingFilter")
+      .edgesBy(function(e) {
+        return e[plotInfo.eAttributes[0]] > val;
+      }, "AnythingFilter")
+      .apply();
+  }
 
   document.getElementById("edge-threshold").onchange = function() {
     // need to check if the label changes with the zoom!
@@ -452,7 +481,7 @@ sigma.parsers.json(hyperparameters.filename, sigmaInstance, function(s) {
 
   document.getElementById("layout").onclick = function() {
     if (!force) {
-      s.startForceAtlasigmaInstance({
+      s.startForceAtlas2({
         slowDown: 1,
         linLogMode: selected.linLog,
         iterationsPerRender: 2,
@@ -462,7 +491,7 @@ sigma.parsers.json(hyperparameters.filename, sigmaInstance, function(s) {
       });
       this.textContent = "Stop";
     } else {
-      s.stopForceAtlasigmaInstance();
+      s.stopForceAtlas2();
       this.textContent = "Start";
       s.graph.storeEdgeLenght();
       filterEdges();
@@ -478,6 +507,10 @@ sigma.parsers.json(hyperparameters.filename, sigmaInstance, function(s) {
   };
 });
 
+// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 // ------------------------ Unpacking function for the dir -------------------//
 
 function unpack_dict(d, length) {
