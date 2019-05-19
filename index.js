@@ -6,22 +6,38 @@ var hyperparameters = {
   //activityDir: "./data/LargeG/activations_dict_unpacked.csv",
   activityDir: "./data/final/activations_2018_09_1q.json",
   //activityDir: "./data/Data_hourly.csv",
-  nb_hours: 336
+  nb_hours: 336,
+  n_nodes: 0,
+  n_edges: 0
 };
 
-document.getElementById("WeekSelect").oninput = function() {
+function init() {
+  selection = document.getElementById("WeekSelect");
+  // Update all the hyperparameters based on the selected week / time frame
+  hyperparameters.filename = "./data/final/" + selection.value + ".json";
   startSpinner();
-  hyperparameters.startDate = this[this.selectedIndex].getAttribute('startDate');
-  hyperparameters.nb_hours = this[this.selectedIndex].getAttribute('hours');
+  hyperparameters.startDate = selection[selection.selectedIndex].getAttribute(
+    "startDate"
+  );
   hyperparameters.activityDir =
-    "./data/final/activations_" + this.value + ".json";
-  hyperparameters.filename = "./data/final/" + this.value + ".json";
-  clearGraph();
+    "./data/final/activations_" + selection.value + ".json";
+  hyperparameters.nb_hours = selection[selection.selectedIndex].getAttribute(
+    "hours"
+  );
   plotInfo.nb_hours = hyperparameters.nb_hours;
+
+  // Update all the visuals and information on the graph based on that
+  clearGraph();
   setTime();
   updateGraph();
   readActivity();
+  hyperparameters.n_nodes = sigmaInstance.graph.nodes().length;
+  hyperparameters.n_edges = sigmaInstance.graph.edges().length;
   stopSpinner();
+}
+
+document.getElementById("WeekSelect").oninput = function() {
+  init();
 };
 
 // EXPORTABLE MODULE
@@ -534,8 +550,8 @@ var noverlapListener = sigmaInstance.configNoverlap({
 });
 
 // // TODO:  put in an init
-sigma.parsers.json(hyperparameters.filename, sigmaInstance, sigmaInitCallback);
-
+//sigma.parsers.json(hyperparameters.filename, sigmaInstance, sigmaInitCallback);
+init();
 // ----------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
@@ -578,10 +594,6 @@ function readActivity() {
   gdata = {};
   Plotly.d3.json(hyperparameters.activityDir, function(err, rows) {
     gdata = rows;
-    // TBR IF WE KEEP THIS TIME FORMAT
-    //time = unpack(gdata, "Date");
-    //(plotInfo.startDate = new Date(time[0])),
-    //  (plotInfo.endDate = new Date(time[time.length - 1]));
 
     for (i in rows) {
       gdata[i] = unpack_dict(rows[i]);
