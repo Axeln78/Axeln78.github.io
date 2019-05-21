@@ -91,6 +91,7 @@
               type="checkbox"
               name="Neighbour node selection"
               value="Null"
+              onclick="changeMultiSelect(this.checked)"
             />
             Single node selection<br />
 
@@ -129,11 +130,16 @@
               </select>
               <select id="attributeSelect"> </select>
               <select id="comparisonSelect">
-                <option value=">"> > </option>
-                <option value="="> = </option>
-                <option value="<"> < </option>
+                <option value="0"> > </option>
+                <option value="1"> = </option>
+                <option value="2"> < </option>
               </select>
-              <input type="number" id="customThresh" value="0" />
+              <input
+                type="number"
+                id="customThresh"
+                value="0"
+                onchange="filterAnything()"
+              />
             </div>
           </div>
         </div>

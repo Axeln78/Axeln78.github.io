@@ -255,6 +255,15 @@ function restartGV() {
   sigmaInstance.refresh();
 }
 
+function changeMultiSelect(check) {
+  console.log("Changing selection mode");
+  if (this.checked) {
+    selected.multi = false;
+  } else {
+    selected.multi = true;
+  }
+}
+
 // ------ Sigma object creation and graph inportation---------- //
 var sigmaInstance = new sigma(sigmaConfig);
 var filter = new sigma.plugins.filter(sigmaInstance);
@@ -298,8 +307,6 @@ sigmaInitCallback = function(s) {
 
   // ---------------- ELEMENT linked functions -------------------- //
   // Needs to go and get the data information of the activity in order to compare it here. Otherwise the interaction is good
-
-  // Activity filtering :
 
   //init time range filter
   document.getElementById("range").max = plotInfo.rangeEndI - 1;
@@ -452,16 +459,43 @@ function filterEdges() {
 }
 // Initialisations function call
 filterEdges();
+function attributefilter(obj, val) {
+  attribute = document.getElementById("attributeSelect").value;
+  switch (document.getElementById("comparisonSelect").value) {
+    case "0":
+      return obj[attribute] > val;
+
+      break;
+    case "1":
+      return obj[attribute] == val;
+      break;
+    case "2":
+      return obj[attribute] < val;
+      break;
+
+    default:
+      console.log("Unknown comparison element");
+  }
+}
 
 function filterAnything() {
-  val = document.getElementById("customThresh").values;
+  val = document.getElementById("customThresh").value;
   //document.getElementById("elementSelect").value
-  filter
-    .undo("AnythingFilter")
-    .edgesBy(function(e) {
-      return e[plotInfo.eAttributes[0]] > val;
-    }, "AnythingFilter")
-    .apply();
+  if (document.getElementById("elementSelect").value == "edges") {
+    filter
+      .undo("AnythingFilter")
+      .edgesBy(function(e) {
+        return attributefilter(e, val);
+      }, "AnythingFilter")
+      .apply();
+  } else {
+    filter
+      .undo("AnythingFilter")
+      .nodesBy(function(n) {
+        return attributefilter(n, val);
+      }, "AnythingFilter")
+      .apply();
+  }
 }
 
 // Export FUNCTIONS
@@ -488,14 +522,15 @@ document.getElementById("exportGEXF").onclick = function() {
   });
   stopSpinner();
 };
-document.getElementById("CheckboxMultiselect").onchange = function() {
+
+function changeMultiSelect(check) {
   console.log("Changing selection mode");
   if (this.checked) {
     selected.multi = false;
   } else {
     selected.multi = true;
   }
-};
+}
 document.getElementById("CheckboxLayout").onchange = function() {
   console.log("Changing selection mode");
   if (this.checked) {
@@ -504,9 +539,9 @@ document.getElementById("CheckboxLayout").onchange = function() {
     selected.linLog = false;
   }
   // Restart Force Atlas 2
-  if (s.isForceAtlas2Running()) {
-    s.killForceAtlas2();
-    s.startForceAtlas2({
+  if (sigmaInstance.isForceAtlas2Running()) {
+    sigmaInstance.killForceAtlas2();
+    sigmaInstance.startForceAtlas2({
       slowDown: 1,
       linLogMode: selected.linLog,
       iterationsPerRender: 2,
@@ -590,7 +625,6 @@ function readActivity() {
     }
 
     plotActivity([]);
-    //stopSpinner();
   });
 }
 
