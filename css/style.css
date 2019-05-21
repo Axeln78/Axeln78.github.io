@@ -13,16 +13,24 @@ body {
 #commands-container {
   top: 10px;
   /*bottom: 10px;*/
-  right: 10px;
+  left: 10px;
   position: absolute;
-  width: 230px;
-  background-color: rgb(100, 100, 100);
+  width: 100%;
+  max-height: 50%;
+  background-color: transparent;
+  /*  background-color: orange; /*rgb(100, 100, 100)*/
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   overflow: auto;
+  padding: 0 5px;
+  pointer-events: auto;
 }
 #commands-container > div {
   margin: 10px;
   overflow: auto;
+}
+
+#content {
+  pointer-events: true;
 }
 
 #plot-container {
@@ -30,9 +38,12 @@ body {
   /*bottom: 10px;*/
   right: 5px;
   position: absolute;
+  max-height: 50%;
+  max-width: 100%;
   /*height: 250px;*/
   /*height: 300px;*/
-  background-color: rgb(100, 100, 100);
+  /*background-color: orange;*/
+  background-color: transparent;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 #plot-container > div {
@@ -44,7 +55,6 @@ body {
   display: inline-block;
   width: 100%;
   height: 10px;
-  padding: 0;
 }
 
 .axis--grid .domain {
@@ -63,10 +73,13 @@ body {
 
 .collapsible {
   background-color: #ddd;
+  color: #111;
 }
 
 .content {
   /*padding: 0 18px;*/
+  max-height: 30;
+  transition: max-height 0.2s ease-out;
   display: none;
   overflow: auto;
 }

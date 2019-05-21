@@ -31,7 +31,7 @@
   width: 100%;
   max-width: 960px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 5px; /*0 20*/
   box-sizing: border-box;
 }
 .column,
@@ -188,7 +188,7 @@ body {
   font-weight: 400;
   font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial,
     sans-serif;
-  color: #222;
+  color: #aaa;
 }
 
 /* Typography
@@ -278,8 +278,8 @@ input[type="reset"],
 input[type="button"] {
   display: inline-block;
   height: 38px;
-  padding: 0 30px;
-  color: #aaa;
+  padding: 0 11px; /*0 30 */
+  color: #fff;
   text-align: center;
   font-size: 11px;
   font-weight: 600;
@@ -481,7 +481,7 @@ p,
 ul,
 ol,
 form {
-  margin-bottom: 2.5rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Utilities

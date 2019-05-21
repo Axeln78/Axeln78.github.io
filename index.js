@@ -12,10 +12,11 @@ var hyperparameters = {
 };
 
 function init() {
+  //startSpinner();
+
   selection = document.getElementById("WeekSelect");
   // Update all the hyperparameters based on the selected week / time frame
   hyperparameters.filename = "./data/final/" + selection.value + ".json";
-  startSpinner();
   hyperparameters.startDate = selection[selection.selectedIndex].getAttribute(
     "startDate"
   );
@@ -29,15 +30,23 @@ function init() {
   // Update all the visuals and information on the graph based on that
   clearGraph();
   setTime();
-  updateGraph();
   readActivity();
+  updateGraph();
+}
+
+function updateInfo() {
   hyperparameters.n_nodes = sigmaInstance.graph.nodes().length;
+  document.getElementById("nnodes").innerHTML =
+    hyperparameters.n_nodes + " nodes";
   hyperparameters.n_edges = sigmaInstance.graph.edges().length;
-  stopSpinner();
+  document.getElementById("nedges").innerHTML =
+    hyperparameters.n_edges + " edges";
 }
 
 document.getElementById("WeekSelect").oninput = function() {
-  init();
+  startSpinner(init);
+  stopSpinner();
+  //init();
 };
 
 // EXPORTABLE MODULE
@@ -215,12 +224,8 @@ sigma.classes.graph.addMethod("storeEdgeLenght", function() {
   }
 });
 
-function drawEdges() {
-  sigmaInstance.settings("drawEdges", true);
-  sigmaInstance.refresh();
-}
-function hideEdges() {
-  sigmaInstance.settings("drawEdges", false);
+function drawEdges(bool) {
+  sigmaInstance.settings("drawEdges", bool);
   sigmaInstance.refresh();
 }
 function clearGraph() {
@@ -235,6 +240,7 @@ function updateGraph() {
   );
   sigmaInstance.refresh();
 }
+
 // When the stage is clicked, we just color each
 // node and edge with its original color.
 function restartGV() {
@@ -298,48 +304,48 @@ sigmaInitCallback = function(s) {
   //init time range filter
   document.getElementById("range").max = plotInfo.rangeEndI - 1;
 
-  s.bind("clickNode", function(e) {
-    let nodeId = e.data.node.id; // This is only an integer
-
-    // add the selected node to memory
-    selected.add(e.data.node);
-
-    // obj
-    if (selected.multi) {
-      let toKeep = s.graph.neighbors(nodeId);
-      toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
-      selected.reset();
-
-      for (i in toKeep) {
-        selected.add(toKeep[i]);
-      }
-    }
-    // Draw the nodes that should stay activated
-    s.graph.activate();
-    plotActivity(selected.arr);
-    s.refresh();
-
-    // pop up the plot when clicking on a node
-    let plot = document.getElementById("plot-container");
-    plot.children[1].style.display = "block"; // fuggly magic number here
-  });
-
   // -------------------- Selection and more general functions -------------- //
-
-  s.bind("clickStage", function(e) {
-    // isDragging propriety : https://github.com/jacomyal/sigma.js/issues/342#issuecomment-58361925
-    if (!e.data.captor.isDragging) {
-      if (!selected.disp) {
-        s.graph.activate();
-        s.refresh();
-        selected.disp = true;
-      } else {
-        restartGV();
-        selected.disp = false;
-      }
-    }
-  });
 };
+
+sigmaInstance.bind("clickStage", function(e) {
+  // isDragging propriety : https://github.com/jacomyal/sigma.js/issues/342#issuecomment-58361925
+  if (!e.data.captor.isDragging) {
+    if (!selected.disp) {
+      sigmaInstance.graph.activate();
+      sigmaInstance.refresh();
+      selected.disp = true;
+    } else {
+      restartGV();
+      selected.disp = false;
+    }
+  }
+});
+sigmaInstance.bind("clickNode", function(e) {
+  let nodeId = e.data.node.id; // This is only an integer
+
+  // add the selected node to memory
+  selected.add(e.data.node);
+
+  // obj
+  if (selected.multi) {
+    let toKeep = sigmaInstance.graph.neighbors(nodeId);
+    toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
+    selected.reset();
+
+    for (i in toKeep) {
+      selected.add(toKeep[i]);
+    }
+  }
+  // Draw the nodes that should stay activated
+  sigmaInstance.graph.activate();
+  plotActivity(selected.arr);
+  sigmaInstance.refresh();
+
+  // pop up the plot when clicking on a node
+  let plot = document.getElementById("plot-container");
+  plot.children[1].style.display = "block"; // fuggly magic number here
+});
+
 // -------------------- LAYOUT & plugins -------------------- //
 
 var force = false;
@@ -372,24 +378,19 @@ document.getElementById("noverlap").onclick = function() {
 };
 
 //  -------------- interactions between the lay out and Sigma
-document.getElementById("lower-threshold").oninput = function() {
-  filterActivity();
-};
-document.getElementById("higher-threshold").oninput = function() {
-  filterActivity();
-};
-document.getElementById("ResetTimeRange").onclick = function() {
+
+function resetTimeRange() {
   document.getElementById("lower-threshold").value = 0;
   document.getElementById("higher-threshold").value = 100000;
   filterActivity();
   plotActivity(selected.arr);
-};
+}
 document.getElementById("range").oninput = function() {
   filterActivity();
   plotInfo.selectedTimeI = plotInfo.rangeStartI + parseInt(this.value);
 
   document.getElementById("DateIndicator").innerHTML =
-    "selected Time: " + time[plotInfo.selectedTimeI];
+    "selected Time: " + time[plotInfo.selectedTimeI].toUTCString();
   // Update a second trace of the plot where the bar is stored to move it at y = "selected time"
   let updateLayout = {
     shapes: [
@@ -414,13 +415,7 @@ document.getElementById("range").oninput = function() {
   };
   Plotly.relayout(document.getElementById("Plot"), updateLayout);
 };
-document.getElementById("CheckboxEdges").onchange = function() {
-  if (this.checked == true) {
-    drawEdges();
-  } else {
-    hideEdges();
-  }
-};
+
 document.getElementById("selectionR").onclick = function() {
   selected.reset();
   restartGV();
@@ -522,11 +517,12 @@ document.getElementById("CheckboxLayout").onchange = function() {
   }
 };
 
-document.getElementById("edge-threshold").onchange = function() {
-  // need to check if the label changes with the zoom!
-  //length = this.value;
-  filterEdges();
-};
+// TEST
+//document.getElementById("edge-threshold").onchange = function() {
+// need to check if the label changes with the zoom!
+//length = this.value;
+//  filterEdges();
+//};
 
 document.getElementById("rangeDegree").oninput = function() {
   let size = this.value;
@@ -549,12 +545,6 @@ var noverlapListener = sigmaInstance.configNoverlap({
   duration: 400 // animation duration.
 });
 
-// // TODO:  put in an init
-//sigma.parsers.json(hyperparameters.filename, sigmaInstance, sigmaInitCallback);
-init();
-// ----------------------------------------------------------------------------
-// ------------------------------------------------------------------------
-// ------------------------------------------------------------------------
 // ------------------------------------------------------------------------
 // ------------------------ Unpacking function for the dir -------------------//
 
@@ -600,7 +590,7 @@ function readActivity() {
     }
 
     plotActivity([]);
-    stopSpinner();
+    //stopSpinner();
   });
 }
 
@@ -645,12 +635,13 @@ function plotActivity(nodes) {
     },
     yaxis: {
       autorange: true,
-      type: "linear"
+      type: "linear",
+      automargin: true
     },
 
     // Here could be some indicative values for abs height and width
     //height: 500,
-    width: 500,
+    // width:
     showlegend: document.getElementById("CheckboxPlot").checked,
     legend: {
       x: 0,
@@ -668,7 +659,7 @@ function plotActivity(nodes) {
   };
 
   //Plotly.newPlot(plot, data, layout);
-  Plotly.react(plot, data, layout, { responsive: false });
+  Plotly.react(plot, data, layout, { responsive: true });
   // When the user zooms on the plot, he modifies the selected time range,
   // this information is then sored in the global plotInfo
 
@@ -724,12 +715,21 @@ for (i = 0; i < coll.length; i++) {
 
 // ------------------ Spinner animation functions ---------------
 
-function startSpinner() {
+function startSpinner(callback) {
   roller = document.getElementById("roller");
   roller.style.display = "block";
   console.log("This might take some time...");
+  if (typeof callback === "function") {
+    // Call it, since we have confirmed it is callable
+    callback();
+  }
 }
 function stopSpinner() {
   roller = document.getElementById("roller");
   roller.style.display = "none";
+  updateInfo();
 }
+
+// Initialisation of the first graph at the opening of the page
+init();
+stopSpinner();

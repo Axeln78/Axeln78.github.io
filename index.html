@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
-
     <!-- Basic Page Needs
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <meta charset="utf-8" />
@@ -29,9 +27,11 @@
     />
     <!-- CSS
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
     <link rel="stylesheet" href="css/normalize.css" />
     <link rel="stylesheet" href="css/skeleton.css" />
     <link rel="stylesheet" href="css/spin.css" />
+    <link rel="stylesheet" href="css/styles.css" />
 
     <!-- Favicon
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -50,7 +50,6 @@
     <script src="./lib/sigma_js/plugins/sigma.plugins.filter.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.plugins.animate.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.exporters.svg.min.js"></script>
-    <!-- Linkurious https://github.com/Linkurious/linkurious.js/blob/develop/plugins/sigma.exporters.gexf/sigma.exporters.gexf.js-->
     <script src="./lib/sigma.exporters.gexf.js"></script>
 
     <!-- Plotly
@@ -60,6 +59,7 @@
 
   <body>
     <div id="sigma-container"></div>
+
     <div class="lds-roller" id="roller">
       <div></div>
       <div></div>
@@ -71,97 +71,10 @@
       <div></div>
     </div>
 
-    <!-- <div id="commands-container" class="row">
-      <div class="one-third column">
+    <div class="row" id="commands-container">
+      <div class="three columns" id="content">
         <button class="collapsible">Layout</button>
         <div class="content">
-          <div class="row">
-            <div class="row" id="Render">
-              <button id="layout" type="button">Force Atlas 2</button><br />
-              <input
-                id="CheckboxLayout"
-                type="checkbox"
-                name="Neighbour node selection"
-                value="true"
-              />
-              Lin-Log-mode<br />
-
-              <button id="noverlap" type="button">Noverlap</button><br />
-              <input
-                id="CheckboxMultiselect"
-                type="checkbox"
-                name="Neighbour node selection"
-                value="Null"
-              />
-              Single node selection<br />
-
-              <div>
-                <button id="selectionR" type="button">Reset selection</button
-                ><br />
-
-                <input
-                  type="range"
-                  id="rangeDegree"
-                  name="degree"
-                  min="0"
-                  max="35"
-                  value="0"
-                />
-                Max degree <span id="max-degree-value">0</span> selected min
-                degree <span id="min-degree-value">0</span><br />
-                Min edge size:
-                <input
-                  type="number"
-                  id="edge-threshold"
-                  name="ethresh"
-                  value="60000"
-                />
-              </div>
-
-              <button class="collapsible">Custom filter</button>
-              <div class="content">
-                <div class="row"></div>
-                Attribute - greater - number
-                <select id="elementSelect">
-                  <option value="nodes">nodes</option>
-                  <option value="edges">edges</option>
-                </select>
-                <select id="attributeSelect"> </select>
-                <select id="comparisonSelect">
-                  <option value=">"> > </option>
-                  <option value="="> = </option>
-                  <option value="<"> < </option>
-                </select>
-                <input type="number" id="customThresh" value="0" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="one-third column">
-        <input
-          id="CheckboxEdges"
-          type="checkbox"
-          name="Show edges"
-          value="null"
-        />
-        Show edges
-      </div>
-      <div class="one-third column">
-        <button class="collapsible">Export</button>
-        <div class="content">
-          <div class="row">
-            <button id="exportSVG" type="export">SVG</button>
-            <button id="exportGEXF" type="export2">GEXF</button>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
-    <div class="row" id="commands-container">
-      <button class="collapsible">Layout</button>
-      <div class="content">
-        <div class="row">
           <div class="row" id="Render">
             <button id="layout" type="button">Force Atlas 2</button><br />
             <input
@@ -202,6 +115,7 @@
                 name="ethresh"
                 value="1000"
                 step="100"
+                onchange="filterEdges()"
               />
             </div>
 
@@ -224,14 +138,19 @@
           </div>
         </div>
       </div>
-      <div class="one-third column">
+      <div class="two columns">
         <input
           id="CheckboxEdges"
           type="checkbox"
           name="Show edges"
           value="null"
+          onchange="drawEdges(this.checked)"
         />
-        Show edges <br />
+        Show edges
+        <p id="nedges"></p>
+        <p id="nnodes"></p>
+      </div>
+      <div class="three columns">
         <select id="WeekSelect">
           <option
             value="2018_09_1q"
@@ -271,7 +190,12 @@
         </select>
         Week selector
       </div>
-      <div class="one-third column">
+      <div class="one column">
+        <button type="button" id="ResetTimeRange" onclick="resetTimeRange()">
+          Reset
+        </button>
+      </div>
+      <div class="two columns">
         <button class="collapsible">Export</button>
         <div class="content">
           <div class="row">
@@ -320,6 +244,7 @@
                 id="lower-threshold"
                 name="lthresh"
                 value="0"
+                onchange="filterActivity()"
               />
               higher threshold:
               <input
@@ -327,13 +252,12 @@
                 id="higher-threshold"
                 name="htresh"
                 value="100000"
-              /><br />
+                onchange="filterActivity()"
+              />
             </p>
           </div>
         </div>
       </div>
-
-      <button type="button" id="ResetTimeRange">Reset</button>
     </div>
 
     <!--  <script type="module" src="lib/spin.js"></script> -->
