@@ -15,8 +15,13 @@
 
     <!-- FONT
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    <link
+    <!--  <link
       href="//fonts.googleapis.com/css?family=Raleway:400,300,600"
+      rel="stylesheet"
+
+    /> -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto&display=swap"
       rel="stylesheet"
       type="text/css"
     />
@@ -31,14 +36,10 @@
     <link rel="stylesheet" href="css/normalize.css" />
     <link rel="stylesheet" href="css/skeleton.css" />
     <link rel="stylesheet" href="css/spin.css" />
-    <link rel="stylesheet" href="css/styles.css" />
 
     <!-- Favicon
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <link rel="icon" type="image/png" href="images/favicon.png" />
-
-    <!--- JSON ?------------------------------------->
-    <!---  <script type="text/javascript" src="data/final/activations_2018_09_2q.json"></script> -->
 
     <!-- Sigma
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -69,143 +70,145 @@
         <div></div>
         <div></div>
       </div>
-    </div>
-    <div class="row" id="commands-container">
-      <div class="three columns" id="content">
-        <button class="collapsible">Layout</button>
-        <div class="content">
-          <div class="row" id="Render">
-            <button id="layout" type="button">Force Atlas 2</button><br />
-            <input
-              id="CheckboxLayout"
-              type="checkbox"
-              name="Neighbour node selection"
-              value="true"
-            />
-            Lin-Log-mode<br />
 
-            <button id="noverlap" type="button">Noverlap</button><br />
-            <input
-              id="CheckboxMultiselect"
-              type="checkbox"
-              name="Neighbour node selection"
-              value="Null"
-              onclick="changeMultiSelect(this.checked)"
-            />
-            Single node selection<br />
-
-            <div>
-              <button id="selectionR" type="button">Reset selection</button
-              ><br />
-
-              <input
-                type="range"
-                id="rangeDegree"
-                name="degree"
-                min="0"
-                max="35"
-                value="0"
-              />
-              Max degree <span id="max-degree-value">0</span> selected min
-              degree <span id="min-degree-value">0</span><br />
-              Min edge size:
-              <input
-                type="number"
-                id="edge-threshold"
-                name="ethresh"
-                value="1000"
-                step="100"
-                onchange="filterEdges()"
-              />
-            </div>
-
-            <button class="collapsible">Custom filter</button>
-            <div class="content">
-              <div class="row"></div>
-              Attribute - Comprison - value
-              <select id="elementSelect">
-                <option value="nodes">nodes</option>
-                <option value="edges">edges</option>
-              </select>
-              <select id="attributeSelect"> </select>
-              <select id="comparisonSelect">
-                <option value="0"> > </option>
-                <option value="1"> = </option>
-                <option value="2"> < </option>
-              </select>
-              <input
-                type="number"
-                id="customThresh"
-                value="0"
-                onchange="filterAnything()"
-              />
+      <div class="row" id="commands-container">
+        <div class="two columns"></div>
+        <div class="two columns">
+          <input
+            id="CheckboxEdges"
+            type="checkbox"
+            name="Show edges"
+            value="null"
+            onchange="drawEdges(this.checked)"
+          />
+          Show edges
+          <p id="nedges"></p>
+          <p id="nnodes"></p>
+        </div>
+        <div class="three columns">
+          <select id="WeekSelect">
+            <option
+              value="2018_09_1q"
+              startDate="2018-08-31 22:00:00"
+              hours="336"
+            >
+              1-15 sep. 2018</option
+            >
+            <option
+              value="2018_09_2q"
+              startDate="2018-09-14 22:00:00"
+              hours="384"
+            >
+              16-30 sep. 2018</option
+            >
+            <option
+              value="2018_10_1q"
+              startDate="2018-09-30 22:00:00"
+              hours="336"
+            >
+              1-15 oct. 2018</option
+            >
+            <option
+              value="2018_10_2q"
+              startDate="2018-10-14 22:00:00"
+              hours="385"
+            >
+              16-31 oct. 2018
+            </option>
+            <option
+              value="2018_10_1q"
+              startDate="2018-10-31 23:00:00"
+              hours="336"
+            >
+              1-15 nov. 2018</option
+            >
+          </select>
+          Week selector
+        </div>
+        <div class="two columns">
+          <button type="button" id="ResetTimeRange" onclick="resetTimeRange()">
+            Reset
+          </button>
+        </div>
+        <div class="two columns">
+          <button class="collapsible">Export</button>
+          <div class="content">
+            <div class="row">
+              <button id="exportSVG" type="export">SVG</button>
+              <button id="exportGEXF" type="export2">GEXF</button>
             </div>
           </div>
         </div>
       </div>
-      <div class="two columns">
-        <input
-          id="CheckboxEdges"
-          type="checkbox"
-          name="Show edges"
-          value="null"
-          onchange="drawEdges(this.checked)"
-        />
-        Show edges
-        <p id="nedges"></p>
-        <p id="nnodes"></p>
-      </div>
-      <div class="three columns">
-        <select id="WeekSelect">
-          <option
-            value="2018_09_1q"
-            startDate="2018-08-31 22:00:00"
-            hours="336"
-          >
-            1-15 sep. 2018</option
-          >
-          <option
-            value="2018_09_2q"
-            startDate="2018-09-14 22:00:00"
-            hours="384"
-          >
-            16-30 sep. 2018</option
-          >
-          <option
-            value="2018_09_1q"
-            startDate="2018-09-30 22:00:00"
-            hours="336"
-          >
-            1-15 oct. 2018</option
-          >
-          <option
-            value="2018_10_2q"
-            startDate="2018-10-14 22:00:00"
-            hours="385"
-          >
-            16-31 oct. 2018
-          </option>
-          <option
-            value="2018_10_1q"
-            startDate="2018-10-31 23:00:00"
-            hours="336"
-          >
-            1-15 nov. 2018</option
-          >
-        </select>
-        Week selector
-      </div>
-      <div class="one column">
-        <button type="button" id="ResetTimeRange" onclick="resetTimeRange()">
-          Reset
-        </button>
-      </div>
-      <div class="two columns">
-        <button class="collapsible">Export</button>
-        <div class="content">
-          <div class="row">
-            <button id="exportSVG" type="export">SVG</button>
-            <button id="exportGEXF" type="export2">GEXF</button>
+    </div>
+
+    <div class="three columns" id="content">
+      <button class="collapsible">Layout</button>
+      <div class="content">
+        <div class="row" id="Render">
+          <button id="layout" type="button">Force Atlas 2</button><br />
+          <input
+            id="CheckboxLayout"
+            type="checkbox"
+            name="Neighbour node selection"
+            value="true"
+          />
+          Lin-Log-mode<br />
+
+          <button id="noverlap" type="button">Noverlap</button><br />
+          <input
+            id="CheckboxMultiselect"
+            type="checkbox"
+            name="Neighbour node selection"
+            value="Null"
+            onclick="changeMultiSelect(this.checked)"
+          />
+          Single node selection<br />
+
+          <div>
+            <button id="selectionR" type="button">Reset selection</button><br />
+
+            <input
+              type="range"
+              id="rangeDegree"
+              name="degree"
+              min="0"
+              max="35"
+              value="0"
+            />
+            Max degree <span id="max-degree-value">0</span> selected min degree
+            <span id="min-degree-value">0</span><br />
+            Min edge size:
+            <input
+              type="number"
+              id="edge-threshold"
+              name="ethresh"
+              value="1000"
+              step="100"
+              onchange="filterEdges()"
+            />
+          </div>
+
+          <button class="collapsible">Custom filter</button>
+          <div class="content">
+            <div class="row"></div>
+            Attribute - Comprison - value
+            <select id="elementSelect">
+              <option value="nodes">nodes</option>
+              <option value="edges">edges</option>
+            </select>
+            <select id="attributeSelect"> </select>
+            <select id="comparisonSelect">
+              <option value="0"> > </option>
+              <option value="1"> = </option>
+              <option value="2"> < </option>
+            </select>
+            <input
+              type="number"
+              id="customThresh"
+              value="0"
+              onchange="filterAnything()"
+            />
           </div>
         </div>
       </div>

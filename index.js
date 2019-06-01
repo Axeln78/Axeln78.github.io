@@ -1,5 +1,7 @@
+// ------------- Gobal structures / variables -------------------
+// --------------------------------------------------------------
 // System functions and global initialisations
-var Hyperparameters = {
+/*var Hyperparameters = {
   filename: "/data/final/2018_09_1q.json",
   startDate: "2018-08-31 22:00:00",
   //startDate: "2018-07-31 22:00:00",
@@ -9,72 +11,15 @@ var Hyperparameters = {
   nb_hours: 336,
   n_nodes: 0,
   n_edges: 0
-};
+};*/
 
-function init() {
-  selection = document.getElementById("WeekSelect");
-  // Update all the Hyperparameters based on the selected week / time frame
-  Hyperparameters.filename = "./data/final/" + selection.value + ".json";
-  Hyperparameters.startDate = selection[selection.selectedIndex].getAttribute(
-    "startDate"
-  );
-  Hyperparameters.activityDir =
-    "./data/final/activations_" + selection.value + ".json";
-  Hyperparameters.nb_hours = selection[selection.selectedIndex].getAttribute(
-    "hours"
-  );
-  PlotInfo.nb_hours = Hyperparameters.nb_hours;
-
-  // Update all the visuals and information on the graph based on that
-  clearGraph();
-  setTime();
-  readActivity();
-  updateGraph();
-}
-
-function updateInfo() {
-  Hyperparameters.n_nodes = sigmaInstance.graph.nodes().length;
-  document.getElementById("nnodes").innerHTML =
-    Hyperparameters.n_nodes + " nodes";
-  Hyperparameters.n_edges = sigmaInstance.graph.edges().length;
-  document.getElementById("nedges").innerHTML =
-    Hyperparameters.n_edges + " edges";
-}
-
-document.getElementById("WeekSelect").oninput = function() {
-  startSpinner(init);
-  stopSpinner();
-};
-
-// Changes made to https://www.npmjs.com/package/nearest-date
-// WE SHOULD BE ABLE TO CHANGE THIS SIMPLE LOOP TO A DICHOTOMY!
-function nearest(dates, target) {
-  if (!target) target = Date.now();
-  else if (target instanceof Date) target = target.getTime();
-
-  var nearest = Infinity;
-  var winner = -1;
-
-  dates.forEach(function(date, index) {
-    date = new Date(date).getTime();
-    let distance = Math.abs(date - target);
-    if (distance < nearest) {
-      nearest = distance;
-      winner = index;
-    }
-  });
-  if (winner == -1) {
-    console.log("// DEBUG: Issue with the scope value of var 'winner'");
-  }
-
-  return winner;
-}
-
-// Returns the date with one added hour
-Date.prototype.addHours = function(h) {
-  let newDate = new Date(this);
-  newDate.setHours(newDate.getHours() + h);
-  return newDate;
+var Hyperparameters = {
+  filename: "",
+  startDate: "",
+  activityDir: "",
+  nb_hours: 0,
+  n_nodes: 0,
+  n_edges: 0
 };
 
 // Object holding the values of the selected nodes
@@ -122,23 +67,8 @@ var PlotInfo = {
   eAttributes: []
 };
 
-//PlotInfo.endDate = PlotInfo.startDate.addHours(PlotInfo.nb_hours);
-PlotInfo.rangeEndI = PlotInfo.nb_hours;
-
 // Make a time frame given the first timestamp and the number of hours
 var time = [];
-function setTime(hours) {
-  if (typeof hours === "undefined") {
-    console.log("There is an issue with the number of hours");
-    hours = Hyperparameters.nb_hours;
-  }
-
-  time = [];
-  date = new Date(Hyperparameters.startDate);
-  for (i = 0; i < hours; i++) {
-    time.push(date.addHours(i));
-  }
-}
 
 // Configuration of sigma
 // Sigma settings: https://github.com/jacomyal/sigma.js/wiki/Settings
@@ -157,6 +87,73 @@ sigmaConfig = {
     // Not working with the custom Sigma:
     //batchEdgesDrawing: true
   }
+};
+
+// --------------------------------------------------------------
+
+function init() {
+  selection = document.getElementById("WeekSelect");
+  // Update all the Hyperparameters based on the selected week / time frame
+  Hyperparameters.filename = "./data/final/" + selection.value + ".json";
+  Hyperparameters.startDate = selection[selection.selectedIndex].getAttribute(
+    "startDate"
+  );
+  Hyperparameters.activityDir =
+    "./data/final/activations_" + selection.value + ".json";
+  Hyperparameters.nb_hours = selection[selection.selectedIndex].getAttribute(
+    "hours"
+  );
+  PlotInfo.nb_hours = Hyperparameters.nb_hours;
+
+  // Update all the visuals and information on the graph based on that
+  clearGraph();
+  setTime();
+  readActivity();
+  updateGraph();
+}
+
+function updateInfo() {
+  Hyperparameters.n_nodes = sigmaInstance.graph.nodes().length;
+  document.getElementById("nnodes").innerHTML =
+    Hyperparameters.n_nodes + " nodes";
+  Hyperparameters.n_edges = sigmaInstance.graph.edges().length;
+  document.getElementById("nedges").innerHTML =
+    Hyperparameters.n_edges + " edges";
+}
+
+document.getElementById("WeekSelect").oninput = function() {
+  startSpinner(init);
+  stopSpinner();
+};
+
+// Changes made to https://www.npmjs.com/package/nearest-date
+function nearest(dates, target) {
+  if (!target) target = Date.now();
+  else if (target instanceof Date) target = target.getTime();
+
+  var nearest = Infinity;
+  var winner = -1;
+
+  dates.forEach(function(date, index) {
+    date = new Date(date).getTime();
+    let distance = Math.abs(date - target);
+    if (distance < nearest) {
+      nearest = distance;
+      winner = index;
+    }
+  });
+  if (winner == -1) {
+    console.log("// DEBUG: Issue with the scope value of var 'winner'");
+  }
+
+  return winner;
+}
+
+// Returns the date with one added hour
+Date.prototype.addHours = function(h) {
+  let newDate = new Date(this);
+  newDate.setHours(newDate.getHours() + h);
+  return newDate;
 };
 
 // ---------------- Methods added to Sigma -------------------- //
@@ -216,10 +213,12 @@ function drawEdges(bool) {
   sigmaInstance.settings("drawEdges", bool);
   sigmaInstance.refresh();
 }
+
 function clearGraph() {
   sigmaInstance.graph.clear();
   sigmaInstance.refresh();
 }
+
 function updateGraph() {
   sigma.parsers.json(
     Hyperparameters.filename,
@@ -229,9 +228,22 @@ function updateGraph() {
   sigmaInstance.refresh();
 }
 
-// When the stage is clicked, we just color each
-// node and edge with its original color.
+function setTime(hours) {
+  if (typeof hours === "undefined") {
+    console.log("There is an issue with the number of hours");
+    hours = Hyperparameters.nb_hours;
+  }
+
+  time = [];
+  date = new Date(Hyperparameters.startDate);
+  for (i = 0; i < hours; i++) {
+    time.push(date.addHours(i));
+  }
+}
+
 function restartGV() {
+  // Color each node and edge with its original color.
+
   sigmaInstance.graph.nodes().forEach(function(n) {
     n.color = n.originalColor;
   });
@@ -242,6 +254,7 @@ function restartGV() {
 
   sigmaInstance.refresh();
 }
+
 function changeMultiSelect(checked) {
   console.log("Changing selection mode");
   console.log(checked);
@@ -345,8 +358,6 @@ sigmaInstance.bind("clickNode", function(e) {
 
 // -------------------- LAYOUT & plugins -------------------- //
 
-//var force = false;
-
 document.getElementById("layout").onclick = function() {
   if (!sigmaInstance.isForceAtlas2Running()) {
     sigmaInstance.startForceAtlas2({
@@ -374,7 +385,7 @@ document.getElementById("noverlap").onclick = function() {
   stopSpinner();
 };
 
-//  -------------- interactions between the lay out and Sigma
+//  -------------- interactions between the lay out and Sigma ----------
 
 function resetTimeRange() {
   document.getElementById("lower-threshold").value = 0;
@@ -412,12 +423,12 @@ document.getElementById("range").oninput = function() {
   };
   Plotly.relayout(document.getElementById("Plot"), updateLayout);
 };
-
 document.getElementById("selectionR").onclick = function() {
   selected.reset();
   restartGV();
   plotActivity(Selected.arr);
 };
+
 // -------------------- FILTER -------------------- //
 function filterActivity() {
   timestamp = document.getElementById("range").value;
@@ -436,6 +447,7 @@ function filterActivity() {
     }, "activity")
     .apply();
 }
+
 function filterEdges() {
   length = document.getElementById("edge-threshold").value;
   filter
@@ -445,6 +457,7 @@ function filterEdges() {
     }, "Short edge cutting")
     .apply();
 }
+
 function filterDegree(minDegree) {
   filter
     .undo("degree")
@@ -454,8 +467,6 @@ function filterDegree(minDegree) {
     .apply();
 }
 
-// Initialisations function call
-// TODO: HERE /!\
 function attributefilter(obj, val) {
   attribute = document.getElementById("attributeSelect").value;
   switch (document.getElementById("comparisonSelect").value) {
@@ -505,6 +516,7 @@ document.getElementById("exportSVG").onclick = function() {
   });
   // console.log(output);
 };
+
 document.getElementById("exportGEXF").onclick = function() {
   startSpinner();
   console.log("exporting to GEXF...");
@@ -519,6 +531,7 @@ document.getElementById("exportGEXF").onclick = function() {
   });
   stopSpinner();
 };
+
 document.getElementById("CheckboxLayout").onchange = function() {
   console.log("Changing selection mode");
   if (this.checked) {
@@ -539,6 +552,7 @@ document.getElementById("CheckboxLayout").onchange = function() {
     });
   }
 };
+
 document.getElementById("rangeDegree").oninput = function() {
   let size = this.value;
   document.getElementById("min-degree-value").textContent = size;
@@ -557,6 +571,7 @@ var noverlapListener = sigmaInstance.configNoverlap({
 
 // ------------------------------------------------------------------------
 // ------------------------ Unpacking function for the dir -------------------//
+// ------------------------------------------------------------------------
 
 function unpack_dict(d, hours) {
   /* Unpacks dictionary `d` {list_index: value} into an object.
@@ -632,24 +647,27 @@ function plotActivity(nodes) {
 
     margin: {
       l: 50,
-      r: 50,
+      r: 10,
       b: 50,
       t: 50,
       pad: 0
     },
     xaxis: {
       range: [time[PlotInfo.rangeStartI], time[PlotInfo.rangeEndI - 1]],
-      type: "date"
+      type: "date",
+      autorange: true,
+      automargin: true,
+      autosize: true
     },
     yaxis: {
       autorange: true,
       type: "linear",
       automargin: true
     },
-
     // Here could be some indicative values for abs height and width
     //height: 500,
-    // width:
+    //width: 500,
+
     showlegend: document.getElementById("CheckboxPlot").checked,
     legend: {
       x: 0,
