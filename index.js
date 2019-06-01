@@ -1,5 +1,5 @@
 // System functions and global initialisations
-var hyperparameters = {
+var Hyperparameters = {
   filename: "/data/final/2018_09_1q.json",
   startDate: "2018-08-31 22:00:00",
   //startDate: "2018-07-31 22:00:00",
@@ -12,20 +12,18 @@ var hyperparameters = {
 };
 
 function init() {
-  //startSpinner();
-
   selection = document.getElementById("WeekSelect");
-  // Update all the hyperparameters based on the selected week / time frame
-  hyperparameters.filename = "./data/final/" + selection.value + ".json";
-  hyperparameters.startDate = selection[selection.selectedIndex].getAttribute(
+  // Update all the Hyperparameters based on the selected week / time frame
+  Hyperparameters.filename = "./data/final/" + selection.value + ".json";
+  Hyperparameters.startDate = selection[selection.selectedIndex].getAttribute(
     "startDate"
   );
-  hyperparameters.activityDir =
+  Hyperparameters.activityDir =
     "./data/final/activations_" + selection.value + ".json";
-  hyperparameters.nb_hours = selection[selection.selectedIndex].getAttribute(
+  Hyperparameters.nb_hours = selection[selection.selectedIndex].getAttribute(
     "hours"
   );
-  plotInfo.nb_hours = hyperparameters.nb_hours;
+  PlotInfo.nb_hours = Hyperparameters.nb_hours;
 
   // Update all the visuals and information on the graph based on that
   clearGraph();
@@ -35,24 +33,20 @@ function init() {
 }
 
 function updateInfo() {
-  hyperparameters.n_nodes = sigmaInstance.graph.nodes().length;
+  Hyperparameters.n_nodes = sigmaInstance.graph.nodes().length;
   document.getElementById("nnodes").innerHTML =
-    hyperparameters.n_nodes + " nodes";
-  hyperparameters.n_edges = sigmaInstance.graph.edges().length;
+    Hyperparameters.n_nodes + " nodes";
+  Hyperparameters.n_edges = sigmaInstance.graph.edges().length;
   document.getElementById("nedges").innerHTML =
-    hyperparameters.n_edges + " edges";
+    Hyperparameters.n_edges + " edges";
 }
 
 document.getElementById("WeekSelect").oninput = function() {
   startSpinner(init);
   stopSpinner();
-  //init();
 };
 
-// EXPORTABLE MODULE
-//var nearest = require("nearest-date");
 // Changes made to https://www.npmjs.com/package/nearest-date
-
 // WE SHOULD BE ABLE TO CHANGE THIS SIMPLE LOOP TO A DICHOTOMY!
 function nearest(dates, target) {
   if (!target) target = Date.now();
@@ -83,13 +77,14 @@ Date.prototype.addHours = function(h) {
   return newDate;
 };
 
-// Array / Object holding the values of the selected nodes
-var selected = {
+// Object holding the values of the selected nodes
+var Selected = {
   multi: true, // Bool for the selection mode
+  // TODO: TBR LINLOG
   linLog: false, // Bool for force atlas settings
+  disp: false, //
   obj: {}, // Object holding the selected nodes
   arr: [], // Array ------- --- -------- -----
-  disp: false, //
   add: function(node) {
     // Checks if a node is already in the list and removes it or adds it
     if (this.arr.lastIndexOf(node) != -1) {
@@ -108,18 +103,18 @@ var selected = {
       console.error("Undefined node");
     }
     console.log("rm");
-  }, // ------ --- removing ---- -- --- --------
+  }, // --------- removing -----------------
   reset: function() {
     this.obj = {};
     this.arr = [];
     console.log("Selection reset");
-  } // ------ --- resetting the selection of the nodes
+  } // ------- resetting the selection of the nodes
 };
 
 // Object holding information on the information needed for the time-display
 // linked with the activity
-var plotInfo = {
-  nb_hours: hyperparameters.nb_hours,
+var PlotInfo = {
+  nb_hours: Hyperparameters.nb_hours,
   rangeStartI: 0,
   maxDisp: 10000,
   selectedTimeI: 0,
@@ -127,23 +122,23 @@ var plotInfo = {
   eAttributes: []
 };
 
-//plotInfo.endDate = plotInfo.startDate.addHours(plotInfo.nb_hours);
-plotInfo.rangeEndI = plotInfo.nb_hours;
+//PlotInfo.endDate = PlotInfo.startDate.addHours(PlotInfo.nb_hours);
+PlotInfo.rangeEndI = PlotInfo.nb_hours;
 
 // Make a time frame given the first timestamp and the number of hours
 var time = [];
 function setTime(hours) {
   if (typeof hours === "undefined") {
-    hours = hyperparameters.nb_hours;
+    console.log("There is an issue with the number of hours");
+    hours = Hyperparameters.nb_hours;
   }
 
   time = [];
-  date = new Date(hyperparameters.startDate);
+  date = new Date(Hyperparameters.startDate);
   for (i = 0; i < hours; i++) {
     time.push(date.addHours(i));
   }
 }
-setTime();
 
 // Configuration of sigma
 // Sigma settings: https://github.com/jacomyal/sigma.js/wiki/Settings
@@ -157,12 +152,9 @@ sigmaConfig = {
     drawLabels: false,
     scalingMode: "outside",
     maxEdgeSize: 0.01,
-    //maxEdgeSize: 1,
-    //minEdgeSize: 0.5,
     labelThreshold: 5,
-
-    // Only large graphs?
     hideEdgesOnMove: true
+    // Not working with the custom Sigma:
     //batchEdgesDrawing: true
   }
 };
@@ -173,38 +165,35 @@ sigmaConfig = {
 // object with every neighbors of a node inside:
 sigma.classes.graph.addMethod("neighbors", function(nodeId) {
   var k;
-
   var neighbors = {};
-
   var index = this.allNeighborsIndex[nodeId] || {};
-
   for (k in index) {
     neighbors[k] = this.nodesIndex[k];
   }
-
   return neighbors;
 });
-
 sigma.classes.graph.addMethod("activate", function() {
-  // nodes
-
-  this.nodes().forEach(function(n) {
-    if (selected.arr[n.id]) {
+  // TBR
+  /*this.nodes().forEach(function(n) {
+    if (Selected.arr[n.id]) {
       n.color = n.originalColor;
     } else {
       n.color = "#444";
     }
+  });*/
+  // nodes
+  this.nodes().forEach(function(n) {
+    n.color = "#444";
   });
 
-  for (let i = 0; i < selected.arr.length; i++) {
-    this.nodesIndex[selected.arr[i].id].color = this.nodesIndex[
-      selected.arr[i].id
-    ].originalColor;
+  for (let i = 0; i < Selected.arr.length; i++) {
+    node = this.nodesIndex[Selected.arr[i].id];
+    node.color = node.originalColor;
   }
 
   // Edges
   this.edges().forEach(function(e) {
-    if (selected.obj[e.source] && selected.obj[e.target]) {
+    if (Selected.obj[e.source] && Selected.obj[e.target]) {
       let colour = e.originalColor;
       e.color = colour.replace(".1", ".4");
     } else {
@@ -212,7 +201,6 @@ sigma.classes.graph.addMethod("activate", function() {
     }
   });
 });
-
 sigma.classes.graph.addMethod("storeEdgeLenght", function() {
   for (let i = 0; i < this.edgesArray.length; i++) {
     let e = this.edgesArray[i];
@@ -234,7 +222,7 @@ function clearGraph() {
 }
 function updateGraph() {
   sigma.parsers.json(
-    hyperparameters.filename,
+    Hyperparameters.filename,
     sigmaInstance,
     sigmaInitCallback
   );
@@ -254,13 +242,13 @@ function restartGV() {
 
   sigmaInstance.refresh();
 }
-
-function changeMultiSelect(check) {
+function changeMultiSelect(checked) {
   console.log("Changing selection mode");
-  if (this.checked) {
-    selected.multi = false;
+  console.log(checked);
+  if (checked) {
+    Selected.multi = false;
   } else {
-    selected.multi = true;
+    Selected.multi = true;
   }
 }
 
@@ -290,18 +278,19 @@ sigmaInitCallback = function(s) {
   s.graph.edges().forEach(function(e) {
     e.originalColor = e.color;
   });
-
+  // Store the lenght of eatch edge as an attriute of each edge
   s.graph.storeEdgeLenght();
   // --------------------- custom plugin tryout ---------------------- //
 
-  plotInfo.nAttributes = Object.keys(sigmaInstance.graph.nodes()[0]);
-  plotInfo.eAttributes = Object.keys(sigmaInstance.graph.edges()[0]);
+  PlotInfo.nAttributes = Object.keys(sigmaInstance.graph.nodes()[0]);
+  PlotInfo.eAttributes = Object.keys(sigmaInstance.graph.edges()[0]);
   select = document.getElementById("attributeSelect");
 
-  for (i in plotInfo.nAttributes) {
+  // TODO: DO This in a function to add the edges
+  for (i in PlotInfo.nAttributes) {
     var opt = document.createElement("option");
-    opt.value = plotInfo.nAttributes[i];
-    opt.innerHTML = plotInfo.nAttributes[i];
+    opt.value = PlotInfo.nAttributes[i];
+    opt.innerHTML = PlotInfo.nAttributes[i];
     select.appendChild(opt);
   }
 
@@ -309,21 +298,22 @@ sigmaInitCallback = function(s) {
   // Needs to go and get the data information of the activity in order to compare it here. Otherwise the interaction is good
 
   //init time range filter
-  document.getElementById("range").max = plotInfo.rangeEndI - 1;
+  document.getElementById("range").max = PlotInfo.rangeEndI - 1;
 
   // -------------------- Selection and more general functions -------------- //
+  s.refresh();
 };
 
 sigmaInstance.bind("clickStage", function(e) {
   // isDragging propriety : https://github.com/jacomyal/sigma.js/issues/342#issuecomment-58361925
   if (!e.data.captor.isDragging) {
-    if (!selected.disp) {
+    if (!Selected.disp) {
       sigmaInstance.graph.activate();
       sigmaInstance.refresh();
-      selected.disp = true;
+      Selected.disp = true;
     } else {
       restartGV();
-      selected.disp = false;
+      Selected.disp = false;
     }
   }
 });
@@ -331,21 +321,21 @@ sigmaInstance.bind("clickNode", function(e) {
   let nodeId = e.data.node.id; // This is only an integer
 
   // add the selected node to memory
-  selected.add(e.data.node);
+  Selected.add(e.data.node);
 
   // obj
-  if (selected.multi) {
+  if (Selected.multi) {
     let toKeep = sigmaInstance.graph.neighbors(nodeId);
     toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
-    selected.reset();
+    Selected.reset();
 
     for (i in toKeep) {
-      selected.add(toKeep[i]);
+      Selected.add(toKeep[i]);
     }
   }
   // Draw the nodes that should stay activated
   sigmaInstance.graph.activate();
-  plotActivity(selected.arr);
+  plotActivity(Selected.arr);
   sigmaInstance.refresh();
 
   // pop up the plot when clicking on a node
@@ -355,13 +345,13 @@ sigmaInstance.bind("clickNode", function(e) {
 
 // -------------------- LAYOUT & plugins -------------------- //
 
-var force = false;
+//var force = false;
 
 document.getElementById("layout").onclick = function() {
-  if (!force) {
+  if (!sigmaInstance.isForceAtlas2Running()) {
     sigmaInstance.startForceAtlas2({
       slowDown: 1,
-      linLogMode: selected.linLog,
+      linLogMode: Selected.linLog,
       iterationsPerRender: 2,
       scalingRatio: 40,
       worker: true,
@@ -374,7 +364,7 @@ document.getElementById("layout").onclick = function() {
     sigmaInstance.graph.storeEdgeLenght();
     filterEdges();
   }
-  force = !force;
+  //force = !force;
 };
 
 document.getElementById("noverlap").onclick = function() {
@@ -390,14 +380,14 @@ function resetTimeRange() {
   document.getElementById("lower-threshold").value = 0;
   document.getElementById("higher-threshold").value = 100000;
   filterActivity();
-  plotActivity(selected.arr);
+  plotActivity(Selected.arr);
 }
 document.getElementById("range").oninput = function() {
   filterActivity();
-  plotInfo.selectedTimeI = plotInfo.rangeStartI + parseInt(this.value);
+  PlotInfo.selectedTimeI = PlotInfo.rangeStartI + parseInt(this.value);
 
   document.getElementById("DateIndicator").innerHTML =
-    "selected Time: " + time[plotInfo.selectedTimeI].toUTCString();
+    "selected Time: " + time[PlotInfo.selectedTimeI].toUTCString();
   // Update a second trace of the plot where the bar is stored to move it at y = "selected time"
   let updateLayout = {
     shapes: [
@@ -408,9 +398,9 @@ document.getElementById("range").oninput = function() {
         xref: "x",
         // y-reference is assigned to the plot paper [0,1]
         yref: "paper",
-        x0: time[plotInfo.selectedTimeI],
+        x0: time[PlotInfo.selectedTimeI],
         y0: 0,
-        x1: time[plotInfo.selectedTimeI + 1],
+        x1: time[PlotInfo.selectedTimeI + 1],
         y1: 1,
         fillcolor: "#F9812A",
         opacity: 0.9,
@@ -426,21 +416,19 @@ document.getElementById("range").oninput = function() {
 document.getElementById("selectionR").onclick = function() {
   selected.reset();
   restartGV();
-  plotActivity(selected.arr);
+  plotActivity(Selected.arr);
 };
 // -------------------- FILTER -------------------- //
 function filterActivity() {
   timestamp = document.getElementById("range").value;
   lt = document.getElementById("lower-threshold").value;
   ht = document.getElementById("higher-threshold").value;
-  //if (lt > 0) {
-  // Otherwise no need to go through all of the graph
   filter
     .undo("activity")
     .nodesBy(function(n) {
       let val = 0;
       try {
-        val = parseInt(gdata[n.id][plotInfo.rangeStartI + parseInt(timestamp)]);
+        val = parseInt(gdata[n.id][PlotInfo.rangeStartI + parseInt(timestamp)]);
       } catch (err) {
         console.log(n.id);
       }
@@ -457,8 +445,17 @@ function filterEdges() {
     }, "Short edge cutting")
     .apply();
 }
+function filterDegree(minDegree) {
+  filter
+    .undo("degree")
+    .nodesBy(function(n) {
+      return this.degree(n.id) > minDegree;
+    }, "degree")
+    .apply();
+}
+
 // Initialisations function call
-filterEdges();
+// TODO: HERE /!\
 function attributefilter(obj, val) {
   attribute = document.getElementById("attributeSelect").value;
   switch (document.getElementById("comparisonSelect").value) {
@@ -479,8 +476,8 @@ function attributefilter(obj, val) {
 }
 
 function filterAnything() {
-  val = document.getElementById("customThresh").value;
-  //document.getElementById("elementSelect").value
+  let val = document.getElementById("customThresh").value;
+
   if (document.getElementById("elementSelect").value == "edges") {
     filter
       .undo("AnythingFilter")
@@ -522,28 +519,19 @@ document.getElementById("exportGEXF").onclick = function() {
   });
   stopSpinner();
 };
-
-function changeMultiSelect(check) {
-  console.log("Changing selection mode");
-  if (this.checked) {
-    selected.multi = false;
-  } else {
-    selected.multi = true;
-  }
-}
 document.getElementById("CheckboxLayout").onchange = function() {
   console.log("Changing selection mode");
   if (this.checked) {
-    selected.linLog = true;
+    Selected.linLog = true;
   } else {
-    selected.linLog = false;
+    Selected.linLog = false;
   }
   // Restart Force Atlas 2
   if (sigmaInstance.isForceAtlas2Running()) {
     sigmaInstance.killForceAtlas2();
     sigmaInstance.startForceAtlas2({
       slowDown: 1,
-      linLogMode: selected.linLog,
+      linLogMode: Selected.linLog,
       iterationsPerRender: 2,
       scalingRatio: 40,
       worker: true,
@@ -551,30 +539,17 @@ document.getElementById("CheckboxLayout").onchange = function() {
     });
   }
 };
-
-// TEST
-//document.getElementById("edge-threshold").onchange = function() {
-// need to check if the label changes with the zoom!
-//length = this.value;
-//  filterEdges();
-//};
-
 document.getElementById("rangeDegree").oninput = function() {
   let size = this.value;
   document.getElementById("min-degree-value").textContent = size;
-  filter
-    .undo("degree")
-    .nodesBy(function(n) {
-      return this.degree(n.id) > size;
-    }, "degree")
-    .apply();
+  filterDegree(size);
 };
 
 // Configure the noverlap layout:
 var noverlapListener = sigmaInstance.configNoverlap({
   nodeMargin: 0.01,
   scaleNodes: 1.05,
-  gridSize: 75, //75
+  gridSize: 75,
   easing: "quadraticInOut", // animation transition function
   speed: 2, // 2 def
   duration: 400 // animation duration.
@@ -587,7 +562,7 @@ function unpack_dict(d, hours) {
   /* Unpacks dictionary `d` {list_index: value} into an object.
   Hyper-parameter  is total number of elements in the resulting list. */
   if (typeof hours === "undefined") {
-    hours = hyperparameters.nb_hours;
+    hours = Hyperparameters.nb_hours;
   }
 
   l = {};
@@ -617,7 +592,7 @@ var gdata = {};
 function readActivity() {
   // Read the activity data
   gdata = {};
-  Plotly.d3.json(hyperparameters.activityDir, function(err, rows) {
+  Plotly.d3.json(Hyperparameters.activityDir, function(err, rows) {
     gdata = rows;
 
     for (i in rows) {
@@ -647,7 +622,6 @@ function plotActivity(nodes) {
       //      color: n.color
       //    }
     };
-
     data.push(trace);
   });
 
@@ -664,7 +638,7 @@ function plotActivity(nodes) {
       pad: 0
     },
     xaxis: {
-      range: [time[plotInfo.rangeStartI], time[plotInfo.rangeEndI - 1]],
+      range: [time[PlotInfo.rangeStartI], time[PlotInfo.rangeEndI - 1]],
       type: "date"
     },
     yaxis: {
@@ -693,41 +667,38 @@ function plotActivity(nodes) {
   };
 
   //Plotly.newPlot(plot, data, layout);
-  Plotly.react(plot, data, layout, { responsive: true });
+  Plotly.react(plot, data, layout, { responsive: false });
   // When the user zooms on the plot, he modifies the selected time range,
-  // this information is then sored in the global plotInfo
+  // this information is then sored in the global PlotInfo
 
   plot.on("plotly_relayout", function(eventdata) {
     // Changes the global parameters for the
-    //plotInfo.rangeStart = new Date(eventdata["xaxis.range[0]"]);
+    //PlotInfo.rangeStart = new Date(eventdata["xaxis.range[0]"]);
     if (eventdata["xaxis.range[0]"]) {
-      plotInfo.rangeStartI = nearest(
+      PlotInfo.rangeStartI = nearest(
         time,
         new Date(eventdata["xaxis.range[0]"])
       ); // THIS COULD BE SIMPLIFIED
-      plotInfo.rangeEndI = nearest(time, new Date(eventdata["xaxis.range[1]"]));
+      PlotInfo.rangeEndI = nearest(time, new Date(eventdata["xaxis.range[1]"]));
 
-      //-----------DND-----------
-      // FUNCTION TO GET THE MAXIMA IS VERY COSTLY IN TIME
-      plotInfo.maxDisp = 0;
-      for (i = 0; i < selected.arr.length; i++) {
+      // function that saves to memory the maxima of the displayed chart
+      PlotInfo.maxDisp = 0;
+      for (i = 0; i < Selected.arr.length; i++) {
         let maxima = Math.max(
           ...unpack(gdata, selected.arr[i].id).slice(
-            plotInfo.rangeStartI,
-            plotInfo.rangeEndI
+            PlotInfo.rangeStartI,
+            PlotInfo.rangeEndI
           )
         );
-        plotInfo.maxDisp = Math.max(plotInfo.maxDisp, maxima);
+        PlotInfo.maxDisp = Math.max(PlotInfo.maxDisp, maxima);
       }
     } else {
-      // ISSUR E WITH THIS STATEMENT
-      //plotInfo.rangeStartI = 0;
-      //plotInfo.rangeEndI = time.length - 1;
+      console.log("Issue with the relayout!");
     }
 
     // Change the range of the slider
     document.getElementById("range").max =
-      plotInfo.rangeEndI - plotInfo.rangeStartI - 1;
+      PlotInfo.rangeEndI - PlotInfo.rangeStartI - 1;
   });
 }
 
@@ -759,9 +730,9 @@ function startSpinner(callback) {
   }
 }
 function stopSpinner() {
+  updateInfo();
   roller = document.getElementById("roller");
   roller.style.display = "none";
-  updateInfo();
 }
 
 // Initialisation of the first graph at the opening of the page
