@@ -92,25 +92,38 @@ sigmaConfig = {
 // --------------------------------------------------------------
 
 function init() {
-  selection = document.getElementById("WeekSelect");
-  // Update all the Hyperparameters based on the selected week / time frame
-  Hyperparameters.filename = "./data/final/" + selection.value + ".json";
-  Hyperparameters.startDate = selection[selection.selectedIndex].getAttribute(
-    "startDate"
-  );
-  Hyperparameters.activityDir =
-    "./data/final/activations_" + selection.value + ".json";
-  Hyperparameters.nb_hours = selection[selection.selectedIndex].getAttribute(
-    "hours"
-  );
-  PlotInfo.nb_hours = Hyperparameters.nb_hours;
+  startSpinner();
 
-  // Update all the visuals and information on the graph based on that
-  clearGraph();
-  setTime();
-  readActivity();
-  updateGraph();
-  updateInfo();
+  var exportPromise = new Promise(function(resolve, reject) {
+    setTimeout(function() {
+      resolve("Success in loading the env.");
+
+      selection = document.getElementById("WeekSelect");
+      // Update all the Hyperparameters based on the selected week / time frame
+      Hyperparameters.filename = "./data/final/" + selection.value + ".json";
+      Hyperparameters.startDate = selection[
+        selection.selectedIndex
+      ].getAttribute("startDate");
+      Hyperparameters.activityDir =
+        "./data/final/activations_" + selection.value + ".json";
+      Hyperparameters.nb_hours = selection[
+        selection.selectedIndex
+      ].getAttribute("hours");
+      PlotInfo.nb_hours = Hyperparameters.nb_hours;
+
+      // Update all the visuals and information on the graph based on that
+      clearGraph();
+      setTime();
+      readActivity();
+      updateGraph();
+    }, 0);
+  });
+
+  exportPromise.then(function(result) {
+    stopSpinner();
+    updateInfo();
+    console.log(result);
+  });
 }
 
 function updateInfo() {
@@ -364,7 +377,7 @@ document.getElementById("layout").onclick = function() {
     sigmaInstance.startForceAtlas2({
       slowDown: 1,
       linLogMode: Selected.linLog,
-      iterationsPerRender: 2,
+      iterationsPerRender: 3,
       scalingRatio: 40,
       worker: true,
       barnesHutOptimize: true
@@ -381,9 +394,19 @@ document.getElementById("layout").onclick = function() {
 
 document.getElementById("noverlap").onclick = function() {
   startSpinner();
-  console.log("Noverlap Start");
-  sigmaInstance.startNoverlap();
-  stopSpinner();
+
+  var exportPromise = new Promise(function(resolve, reject) {
+    setTimeout(function() {
+      resolve("Success. NoOverlap.");
+      console.log("Noverlap Start");
+      sigmaInstance.startNoverlap();
+    }, 0);
+  });
+
+  exportPromise.then(function(result) {
+    stopSpinner();
+    console.log(result);
+  });
 };
 
 //  -------------- interactions between the lay out and Sigma ----------
@@ -528,12 +551,12 @@ document.getElementById("exportGEXF").onclick = function() {
   var exportPromise = new Promise(function(resolve, reject) {
     setTimeout(function() {
       resolve("Success. Exported GEXF.");
-      s.toGEXF({
+      sigmaInstance.toGEXF({
         download: true,
         filename: "myGraph.gexf",
         nodeAttributes: null, // "data",
         edgeAttributes: null, // "data.properties",
-        renderer: s.renderers[0],
+        renderer: sigmaInstance.renderers[0],
         creator: "Wikimedia",
         description: "Generated graph from the Wikipedia dataset"
       });
@@ -767,5 +790,6 @@ function stopSpinner() {
 }
 
 // Initialisation of the first graph at the opening of the page
+
 init();
-stopSpinner();
+//stopSpinner();
