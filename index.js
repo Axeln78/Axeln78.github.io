@@ -524,17 +524,26 @@ document.getElementById("exportSVG").onclick = function() {
 
 document.getElementById("exportGEXF").onclick = function() {
   startSpinner();
-  console.log("exporting to GEXF...");
-  sigmaInstance.toGEXF({
-    download: true,
-    filename: "myGraph.gexf",
-    nodeAttributes: null, // "data",
-    edgeAttributes: null, // "data.properties",
-    renderer: s.renderers[0],
-    creator: "Wikimedia",
-    description: "Generated graph from the Wikipedia dataset"
+
+  var exportPromise = new Promise(function(resolve, reject) {
+    setTimeout(function() {
+      resolve("Success. Exported GEXF.");
+      s.toGEXF({
+        download: true,
+        filename: "myGraph.gexf",
+        nodeAttributes: null, // "data",
+        edgeAttributes: null, // "data.properties",
+        renderer: s.renderers[0],
+        creator: "Wikimedia",
+        description: "Generated graph from the Wikipedia dataset"
+      });
+    }, 0);
   });
-  stopSpinner();
+
+  exportPromise.then(function(result) {
+    stopSpinner();
+    console.log(result);
+  });
 };
 
 document.getElementById("CheckboxLayout").onchange = function() {
