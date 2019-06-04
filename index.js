@@ -110,6 +110,7 @@ function init() {
   setTime();
   readActivity();
   updateGraph();
+  updateInfo();
 }
 
 function updateInfo() {
@@ -390,7 +391,11 @@ document.getElementById("noverlap").onclick = function() {
 function resetTimeRange() {
   document.getElementById("lower-threshold").value = 0;
   document.getElementById("higher-threshold").value = 100000;
-  filterActivity();
+  //Undo all filters
+  filter
+    .undo("activity", "degree", "Short edge cutting", "AnythingFilter")
+    .apply();
+
   plotActivity(Selected.arr);
 }
 document.getElementById("range").oninput = function() {
@@ -656,8 +661,7 @@ function plotActivity(nodes) {
       range: [time[PlotInfo.rangeStartI], time[PlotInfo.rangeEndI - 1]],
       type: "date",
       autorange: true,
-      automargin: true,
-      autosize: true
+      automargin: true
     },
     yaxis: {
       autorange: true,
@@ -666,8 +670,8 @@ function plotActivity(nodes) {
     },
     // Here could be some indicative values for abs height and width
     //height: 500,
-    //width: 500,
-
+    width: document.getElementById("plot-container").offsetWidth,
+    height: document.getElementById("plot-container").offsetWidth,
     showlegend: document.getElementById("CheckboxPlot").checked,
     legend: {
       x: 0,
