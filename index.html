@@ -70,73 +70,72 @@
         <div></div>
         <div></div>
       </div>
-
-      <div class="row" id="commands-container">
-        <div class="three columns"></div>
-        <div class="two columns">
-          <input
-            id="CheckboxEdges"
-            type="checkbox"
-            name="Show edges"
-            value="null"
-            onchange="drawEdges(this.checked)"
-          />
-          Show edges
-          <p id="nedges"></p>
-          <p id="nnodes"></p>
-        </div>
-        <div class="three columns">
-          <select id="WeekSelect">
-            <option
-              value="2018_09_1q"
-              startDate="2018-08-31 22:00:00"
-              hours="336"
-            >
-              1-15 sep. 2018</option
-            >
-            <option
-              value="2018_09_2q"
-              startDate="2018-09-14 22:00:00"
-              hours="384"
-            >
-              16-30 sep. 2018</option
-            >
-            <option
-              value="2018_10_1q"
-              startDate="2018-09-30 22:00:00"
-              hours="336"
-            >
-              1-15 oct. 2018</option
-            >
-            <option
-              value="2018_10_2q"
-              startDate="2018-10-14 22:00:00"
-              hours="385"
-            >
-              16-31 oct. 2018
-            </option>
-            <option
-              value="2018_10_1q"
-              startDate="2018-10-31 23:00:00"
-              hours="336"
-            >
-              1-15 nov. 2018</option
-            >
-          </select>
-          Week selector
-        </div>
-        <div class="two columns">
-          <button type="button" id="ResetTimeRange" onclick="resetTimeRange()">
-            Reset
-          </button>
-        </div>
-        <div class="two columns">
-          <button class="collapsible">Export</button>
-          <div class="content">
-            <div class="row">
-              <button id="exportSVG" type="export">SVG</button>
-              <button id="exportGEXF" type="export2">GEXF</button>
-            </div>
+    </div>
+    <div class="row" id="commands-container">
+      <div class="three columns"></div>
+      <div class="two columns">
+        <input
+          id="CheckboxEdges"
+          type="checkbox"
+          name="Show edges"
+          value="null"
+          onchange="drawEdges(this.checked)"
+        />
+        Show edges
+        <p id="nedges"></p>
+        <p id="nnodes"></p>
+      </div>
+      <div class="three columns">
+        <select id="WeekSelect">
+          <option
+            value="2018_09_1q"
+            startDate="2018-08-31 22:00:00"
+            hours="336"
+          >
+            1-15 sep. 2018</option
+          >
+          <option
+            value="2018_09_2q"
+            startDate="2018-09-14 22:00:00"
+            hours="384"
+          >
+            16-30 sep. 2018</option
+          >
+          <option
+            value="2018_10_1q"
+            startDate="2018-09-30 22:00:00"
+            hours="336"
+          >
+            1-15 oct. 2018</option
+          >
+          <option
+            value="2018_10_2q"
+            startDate="2018-10-14 22:00:00"
+            hours="385"
+          >
+            16-31 oct. 2018
+          </option>
+          <option
+            value="2018_10_1q"
+            startDate="2018-10-31 23:00:00"
+            hours="336"
+          >
+            1-15 nov. 2018</option
+          >
+        </select>
+        Week selector
+      </div>
+      <div class="two columns">
+        <button type="button" id="ResetTimeRange" onclick="resetTimeRange()">
+          Reset
+        </button>
+      </div>
+      <div class="two columns">
+        <button class="collapsible">Export</button>
+        <div class="content">
+          <div class="row">
+            <button id="exportSVG" type="export">SVG</button>
+            <button id="exportGEXF" type="export2">GEXF</button>
           </div>
         </div>
       </div>

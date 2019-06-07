@@ -121,16 +121,15 @@ function init() {
 
   exportPromise.then(function(result) {
     stopSpinner();
-    updateInfo();
     console.log(result);
   });
 }
 
-function updateInfo() {
-  Hyperparameters.n_nodes = sigmaInstance.graph.nodes().length;
+function updateInfo(s) {
+  Hyperparameters.n_nodes = s.nodes().length;
   document.getElementById("nnodes").innerHTML =
     Hyperparameters.n_nodes + " nodes";
-  Hyperparameters.n_edges = sigmaInstance.graph.edges().length;
+  Hyperparameters.n_edges = s.edges().length;
   document.getElementById("nedges").innerHTML =
     Hyperparameters.n_edges + " edges";
 }
@@ -329,6 +328,7 @@ sigmaInitCallback = function(s) {
 
   // -------------------- Selection and more general functions -------------- //
   s.refresh();
+  updateInfo(s.graph);
 };
 
 sigmaInstance.bind("clickStage", function(e) {
@@ -679,8 +679,8 @@ function plotActivity(nodes) {
 
   var layout = {
     autosize: true,
-    paper_bgcolor: "#E2E2E2", // 646464
-    plot_bgcolor: "#E2E2E2",
+    paper_bgcolor: "#000000", // 646464
+    plot_bgcolor: "#000000", //#E2E2E2
 
     margin: {
       l: 50,
@@ -714,8 +714,8 @@ function plotActivity(nodes) {
         size: 10,
         color: "#000"
       },
-      bgcolor: "#E2E2E2",
-      bordercolor: "#FFFFFF",
+      //bgcolor: "#FFFFFF", //"#E2E2E2"
+      bordercolor: "#111111",
       borderwidth: 1
     }
   };
@@ -784,7 +784,6 @@ function startSpinner(callback) {
   }
 }
 function stopSpinner() {
-  updateInfo();
   roller = document.getElementById("roller");
   roller.style.display = "none";
 }

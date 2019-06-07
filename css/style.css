@@ -1,5 +1,5 @@
 body {
-  background-color: black;
+  background-color: white;
 }
 
 #sigma-container {
@@ -15,10 +15,11 @@ body {
   position: relative;
   width: 100%;
   /* max-height: 60%; */
-  background-color: transparent;
-  pointer-events: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* pointer-events: auto; */
   scroll-behavior: auto;
-  margin: 1px;
+  /* margin: 1px; */
+  /* overflow: auto; */
 }
 #commands-container > div {
   margin: 5px;
@@ -28,9 +29,10 @@ body {
 
 #content {
   pointer-events: true;
-  position: relative;
+  position: absolute;
   top: 10px;
-  right: 0px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 #plot-container {
@@ -42,7 +44,7 @@ body {
   overflow: auto;
   max-width: 100%;
   width: 33%;
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 #plot-container > div {
   /*  margin: 10px;*/
