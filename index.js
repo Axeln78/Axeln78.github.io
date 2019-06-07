@@ -25,7 +25,6 @@ var Hyperparameters = {
 // Object holding the values of the selected nodes
 var Selected = {
   multi: true, // Bool for the selection mode
-  // TODO: TBR LINLOG
   linLog: false, // Bool for force atlas settings
   disp: false, //
   obj: {}, // Object holding the selected nodes
@@ -183,14 +182,6 @@ sigma.classes.graph.addMethod("neighbors", function(nodeId) {
   return neighbors;
 });
 sigma.classes.graph.addMethod("activate", function() {
-  // TBR
-  /*this.nodes().forEach(function(n) {
-    if (Selected.arr[n.id]) {
-      n.color = n.originalColor;
-    } else {
-      n.color = "#444";
-    }
-  });*/
   // nodes
   this.nodes().forEach(function(n) {
     n.color = "#444";
@@ -281,9 +272,7 @@ function changeMultiSelect(checked) {
 // ------ Sigma object creation and graph inportation---------- //
 var sigmaInstance = new sigma(sigmaConfig);
 var filter = new sigma.plugins.filter(sigmaInstance);
-//sigma.parsers.gexf("/data/VizWiki5.gexf", sigmaInstance, function(s) {
 
-// // TODO: Break up into many fun
 sigmaInitCallback = function(s) {
   s.refresh();
   // ------- INIT --------- //
@@ -629,9 +618,7 @@ function unpack_dict(d, hours) {
   return l;
 }
 
-// -------------------- Interactive plot part ------------------------ //
-// TODO: go over to only use the list to have the spacial info of the color of
-// the node, maybe with time it will prove more robust
+// -------------------- Interactive plot ------------------------ //
 
 var plot = document.getElementById("Plot");
 
@@ -693,12 +680,17 @@ function plotActivity(nodes) {
       range: [time[PlotInfo.rangeStartI], time[PlotInfo.rangeEndI - 1]],
       type: "date",
       autorange: true,
-      automargin: true
+      automargin: true,
+      //tickcolor: "#999"
+      color: "#999",
+      gridcolor: "#333"
     },
     yaxis: {
       autorange: true,
       type: "linear",
-      automargin: true
+      automargin: true,
+      color: "#999",
+      gridcolor: "#333"
     },
     // Here could be some indicative values for abs height and width
     //height: 500,
@@ -712,7 +704,7 @@ function plotActivity(nodes) {
       font: {
         family: "sans-serif",
         size: 10,
-        color: "#000"
+        color: "#999"
       },
       //bgcolor: "#FFFFFF", //"#E2E2E2"
       bordercolor: "#111111",
@@ -734,7 +726,6 @@ function plotActivity(nodes) {
         new Date(eventdata["xaxis.range[0]"])
       ); // THIS COULD BE SIMPLIFIED
       PlotInfo.rangeEndI = nearest(time, new Date(eventdata["xaxis.range[1]"]));
-
       // function that saves to memory the maxima of the displayed chart
       PlotInfo.maxDisp = 0;
       for (i = 0; i < Selected.arr.length; i++) {
@@ -744,11 +735,14 @@ function plotActivity(nodes) {
             PlotInfo.rangeEndI
           )
         );
-        PlotInfo.maxDisp = Math.max(PlotInfo.maxDisp, maxima);
       }
     } else {
       console.log("Issue with the relayout!");
+      //PlotInfo.rangeStartI = 0;
+      //  PlotInfo.rangeEndI = Hyperparameters.nb_hours;
     }
+
+    PlotInfo.maxDisp = Math.max(PlotInfo.maxDisp, maxima);
 
     // Change the range of the slider
     document.getElementById("range").max =
