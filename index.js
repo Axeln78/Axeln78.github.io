@@ -278,7 +278,7 @@ sigmaInitCallback = function(s) {
   // ------- INIT --------- //
   var maxDegree = 0;
 
-  // Set the maximum node degree
+  // ----- Set the maximum node degree ----- //
   s.graph.nodes().forEach(function(n) {
     maxDegree = Math.max(maxDegree, s.graph.degree(n.id));
   });
@@ -286,33 +286,24 @@ sigmaInitCallback = function(s) {
   document.getElementById("max-degree-value").textContent = maxDegree;
   document.getElementById("rangeDegree").max = maxDegree;
 
-  //Save the original colors
+  // ----- Save the original colors ----- //
   s.graph.nodes().forEach(function(n) {
     n.originalColor = n.color;
   });
   s.graph.edges().forEach(function(e) {
     e.originalColor = e.color;
   });
-  // Store the lenght of eatch edge as an attriute of each edge
-  s.graph.storeEdgeLenght();
-  // --------------------- custom plugin tryout ---------------------- //
 
+  // ----- Store the lenght of eatch edge as an attriute of each edge ----- //
+  s.graph.storeEdgeLenght();
+
+  // --------------------- custom plugin ---------------------- //
   PlotInfo.nAttributes = Object.keys(sigmaInstance.graph.nodes()[0]);
   PlotInfo.eAttributes = Object.keys(sigmaInstance.graph.edges()[0]);
-  select = document.getElementById("attributeSelect");
-
-  // TODO: DO This in a function to add the edges
-  for (i in PlotInfo.nAttributes) {
-    var opt = document.createElement("option");
-    opt.value = PlotInfo.nAttributes[i];
-    opt.innerHTML = PlotInfo.nAttributes[i];
-    select.appendChild(opt);
-  }
 
   // ---------------- ELEMENT linked functions -------------------- //
-  // Needs to go and get the data information of the activity in order to compare it here. Otherwise the interaction is good
+  // Needs to go and get the data information of the activity in order to compare it here.
 
-  //init time range filter
   document.getElementById("range").max = PlotInfo.rangeEndI - 1;
 
   // -------------------- Selection and more general functions -------------- //
@@ -484,6 +475,8 @@ function filterDegree(minDegree) {
     .apply();
 }
 
+// Attribute filter functions
+
 function attributefilter(obj, val) {
   attribute = document.getElementById("attributeSelect").value;
   switch (document.getElementById("comparisonSelect").value) {
@@ -522,6 +515,29 @@ function filterAnything() {
       .apply();
   }
 }
+
+function addOptions(attributes) {
+  select = document.getElementById("attributeSelect");
+  // Reset the options of the previous graph
+  select.options.length = 0;
+
+  for (i in attributes) {
+    var opt = document.createElement("option");
+    opt.value = attributes[i];
+    opt.innerHTML = attributes[i];
+    select.appendChild(opt);
+  }
+}
+
+document.getElementById("elementSelect").onchange = function() {
+  if (this.value == "nodes") {
+    addOptions(PlotInfo.nAttributes);
+  } else if (this.value == "edges") {
+    addOptions(PlotInfo.eAttributes);
+  } else {
+    console.log("Error in the attribute selection");
+  }
+};
 
 // Export FUNCTIONS
 document.getElementById("exportSVG").onclick = function() {
