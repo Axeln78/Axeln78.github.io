@@ -73,8 +73,16 @@ body {
 }
 
 .collapsible {
-  background-color: #ddd;
+  /*background-color: rgba(153, 153, 153, 0.8);*/
+  background-color: rgba(220, 220, 220, 0.8);
   color: #111;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+.collapsible:hover {
+  background-color: #fff;
+  color: black;
 }
 
 .content {

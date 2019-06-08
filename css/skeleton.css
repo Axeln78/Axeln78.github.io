@@ -293,6 +293,7 @@ input[type="button"] {
   border: 1px solid #bbb;
   cursor: pointer;
   box-sizing: border-box;
+  /* color: white; */
 }
 .button:hover,
 button:hover,
@@ -346,7 +347,7 @@ select {
   height: 38px;
   width: 100px;
   padding: 6px 10px; /* The 6px vertically centers text on FF, ignored by Webkit */
-  background-color: #ccc;
+  background-color: #999;
   border: 1px solid #d1d1d1;
   border-radius: 4px;
   box-shadow: none;
