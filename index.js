@@ -60,6 +60,7 @@ var Selected = {
 var PlotInfo = {
   nb_hours: Hyperparameters.nb_hours,
   rangeStartI: 0,
+  rangeEndI: Hyperparameters.nb_hours,
   maxDisp: 10000,
   selectedTimeI: 0,
   nattribute: [],
@@ -90,6 +91,21 @@ sigmaConfig = {
 
 // --------------------------------------------------------------
 
+function getHyperparmeters() {
+  selection = document.getElementById("WeekSelect");
+  // Update all the Hyperparameters based on the selected week / time frame
+  Hyperparameters.filename = "./data/final/" + selection.value + ".json";
+  Hyperparameters.startDate = selection[selection.selectedIndex].getAttribute(
+    "startDate"
+  );
+  Hyperparameters.activityDir =
+    "./data/final/activations_" + selection.value + ".json";
+  Hyperparameters.nb_hours = selection[selection.selectedIndex].getAttribute(
+    "hours"
+  );
+  PlotInfo.nb_hours = Hyperparameters.nb_hours;
+}
+
 function init() {
   startSpinner();
 
@@ -97,23 +113,19 @@ function init() {
     setTimeout(function() {
       resolve("Success in loading the env.");
 
-      selection = document.getElementById("WeekSelect");
-      // Update all the Hyperparameters based on the selected week / time frame
-      Hyperparameters.filename = "./data/final/" + selection.value + ".json";
-      Hyperparameters.startDate = selection[
-        selection.selectedIndex
-      ].getAttribute("startDate");
-      Hyperparameters.activityDir =
-        "./data/final/activations_" + selection.value + ".json";
-      Hyperparameters.nb_hours = selection[
-        selection.selectedIndex
-      ].getAttribute("hours");
-      PlotInfo.nb_hours = Hyperparameters.nb_hours;
+      //Update global the global structures
+      getHyperparmeters();
 
       // Update all the visuals and information on the graph based on that
       clearGraph();
+
+      // Set the timeine given the number of hours and the startdate
       setTime();
+
+      // Parse activity file
       readActivity();
+
+      // Update the graph visuals
       updateGraph();
     }, 0);
   });
@@ -167,6 +179,12 @@ Date.prototype.addHours = function(h) {
   newDate.setHours(newDate.getHours() + h);
   return newDate;
 };
+// Returns the date with one added hour
+Date.prototype.addMinutes = function(m) {
+  let newDate = new Date(this);
+  newDate.setMinutes(newDate.getMinutes() + m);
+  return newDate;
+};
 
 // ---------------- Methods added to Sigma -------------------- //
 
@@ -181,6 +199,8 @@ sigma.classes.graph.addMethod("neighbors", function(nodeId) {
   }
   return neighbors;
 });
+
+// Show only the selected nodes
 sigma.classes.graph.addMethod("activate", function() {
   // nodes
   this.nodes().forEach(function(n) {
@@ -202,6 +222,7 @@ sigma.classes.graph.addMethod("activate", function() {
     }
   });
 });
+
 sigma.classes.graph.addMethod("storeEdgeLenght", function() {
   for (let i = 0; i < this.edgesArray.length; i++) {
     let e = this.edgesArray[i];
@@ -212,6 +233,21 @@ sigma.classes.graph.addMethod("storeEdgeLenght", function() {
     e.length = Math.hypot(x2 - x1, y2 - y1);
   }
 });
+
+//Un used function to get the maximum of all displayed activity
+function fetchMaxDisp() {
+  // function that saves to memory the maxima of the displayed chart
+  PlotInfo.maxDisp = 0;
+  for (i = 0; i < Selected.arr.length; i++) {
+    let maxima = Math.max(
+      ...unpack(gdata, selected.arr[i].id).slice(
+        PlotInfo.rangeStartI,
+        PlotInfo.rangeEndI
+      )
+    );
+  }
+  PlotInfo.maxDisp = Math.max(PlotInfo.maxDisp, maxima);
+}
 
 function drawEdges(bool) {
   sigmaInstance.settings("drawEdges", bool);
@@ -232,6 +268,8 @@ function updateGraph() {
   sigmaInstance.refresh();
 }
 
+//function that makes an ordered series of timestamps based on the number
+// of hours and the first hour timestamp
 function setTime(hours) {
   if (typeof hours === "undefined") {
     console.log("There is an issue with the number of hours");
@@ -245,6 +283,7 @@ function setTime(hours) {
   }
 }
 
+// Resets the visualistation
 function restartGV() {
   // Color each node and edge with its original color.
 
@@ -259,6 +298,7 @@ function restartGV() {
   sigmaInstance.refresh();
 }
 
+// Switches between single node and multinode selection
 function changeMultiSelect(checked) {
   console.log("Changing selection mode");
   console.log(checked);
@@ -275,10 +315,9 @@ var filter = new sigma.plugins.filter(sigmaInstance);
 
 sigmaInitCallback = function(s) {
   s.refresh();
-  // ------- INIT --------- //
-  var maxDegree = 0;
 
   // ----- Set the maximum node degree ----- //
+  var maxDegree = 0;
   s.graph.nodes().forEach(function(n) {
     maxDegree = Math.max(maxDegree, s.graph.degree(n.id));
   });
@@ -324,6 +363,7 @@ sigmaInstance.bind("clickStage", function(e) {
     }
   }
 });
+
 sigmaInstance.bind("clickNode", function(e) {
   let nodeId = e.data.node.id; // This is only an integer
 
@@ -347,7 +387,7 @@ sigmaInstance.bind("clickNode", function(e) {
 
   // pop up the plot when clicking on a node
   let plot = document.getElementById("plot-container");
-  plot.children[1].style.display = "block"; // fuggly magic number here
+  plot.children[1].style.display = "block"; // magic number here
 });
 
 // -------------------- LAYOUT & plugins -------------------- //
@@ -389,7 +429,7 @@ document.getElementById("noverlap").onclick = function() {
   });
 };
 
-//  -------------- interactions between the lay out and Sigma ----------
+//  -------------- interactions between the layout and Sigma ----------
 
 function resetTimeRange() {
   document.getElementById("lower-threshold").value = 0;
@@ -417,9 +457,9 @@ document.getElementById("range").oninput = function() {
         xref: "x",
         // y-reference is assigned to the plot paper [0,1]
         yref: "paper",
-        x0: time[PlotInfo.selectedTimeI],
+        x0: time[PlotInfo.selectedTimeI].addMinutes(-30),
         y0: 0,
-        x1: time[PlotInfo.selectedTimeI + 1],
+        x1: time[PlotInfo.selectedTimeI].addMinutes(30),
         y1: 1,
         fillcolor: "#F9812A",
         opacity: 0.9,
@@ -432,12 +472,13 @@ document.getElementById("range").oninput = function() {
   Plotly.relayout(document.getElementById("Plot"), updateLayout);
 };
 document.getElementById("selectionR").onclick = function() {
-  selected.reset();
+  Selected.reset();
   restartGV();
   plotActivity(Selected.arr);
 };
 
-// -------------------- FILTER -------------------- //
+// -------------------------- FILTERS -------------------------- //
+
 function filterActivity() {
   timestamp = document.getElementById("range").value;
   lt = document.getElementById("lower-threshold").value;
@@ -475,7 +516,7 @@ function filterDegree(minDegree) {
     .apply();
 }
 
-// Attribute filter functions
+// -------------------------- Attribute filter functions
 
 function attributefilter(obj, val) {
   attribute = document.getElementById("attributeSelect").value;
@@ -544,10 +585,8 @@ document.getElementById("exportSVG").onclick = function() {
   console.log("exporting to SVG...");
   var output = sigmaInstance.toSVG({
     download: true,
-    filename: "mygraph.svg",
-    size: 1000
+    filename: "mygraph.svg"
   });
-  // console.log(output);
 };
 
 document.getElementById("exportGEXF").onclick = function() {
@@ -655,6 +694,32 @@ function readActivity() {
     }
 
     plotActivity([]);
+
+    plot.on("plotly_relayout", function(eventdata) {
+      // Zoom-in
+      if (eventdata["xaxis.range[0]"]) {
+        PlotInfo.rangeStartI = nearest(
+          time,
+          new Date(eventdata["xaxis.range[0]"])
+        );
+        PlotInfo.rangeEndI = nearest(
+          time,
+          new Date(eventdata["xaxis.range[1]"])
+        );
+      }
+      // Zoom out to origin
+      else if (eventdata["xaxis.autorange"]) {
+        PlotInfo.rangeStartI = 0;
+        PlotInfo.rangeEndI = PlotInfo.nb_hours - 1;
+      } // Other operation
+      else {
+        console.log("Possible issue with the relayout");
+      }
+
+      // Change the range of the slider
+      document.getElementById("range").max =
+        PlotInfo.rangeEndI - PlotInfo.rangeStartI - 1;
+    });
   });
 }
 
@@ -665,7 +730,7 @@ function unpack(rows, key) {
 //plot initial empty box
 function plotActivity(nodes) {
   let plot = document.getElementById("Plot");
-  var data = [];
+  let data = [];
   nodes.forEach(function(n) {
     let trace = {
       type: "scatter",
@@ -702,14 +767,13 @@ function plotActivity(nodes) {
       gridcolor: "#333"
     },
     yaxis: {
-      autorange: true,
+      //autorange: true,
       type: "linear",
       automargin: true,
       color: "#999",
       gridcolor: "#333"
     },
     // Here could be some indicative values for abs height and width
-    //height: 500,
     width: document.getElementById("plot-container").offsetWidth,
     height: document.getElementById("plot-container").offsetWidth,
     showlegend: document.getElementById("CheckboxPlot").checked,
@@ -732,38 +796,6 @@ function plotActivity(nodes) {
   Plotly.react(plot, data, layout, { responsive: false });
   // When the user zooms on the plot, he modifies the selected time range,
   // this information is then sored in the global PlotInfo
-
-  plot.on("plotly_relayout", function(eventdata) {
-    // Changes the global parameters for the
-    //PlotInfo.rangeStart = new Date(eventdata["xaxis.range[0]"]);
-    if (eventdata["xaxis.range[0]"]) {
-      PlotInfo.rangeStartI = nearest(
-        time,
-        new Date(eventdata["xaxis.range[0]"])
-      ); // THIS COULD BE SIMPLIFIED
-      PlotInfo.rangeEndI = nearest(time, new Date(eventdata["xaxis.range[1]"]));
-      // function that saves to memory the maxima of the displayed chart
-      PlotInfo.maxDisp = 0;
-      for (i = 0; i < Selected.arr.length; i++) {
-        let maxima = Math.max(
-          ...unpack(gdata, selected.arr[i].id).slice(
-            PlotInfo.rangeStartI,
-            PlotInfo.rangeEndI
-          )
-        );
-      }
-    } else {
-      console.log("Issue with the relayout!");
-      //PlotInfo.rangeStartI = 0;
-      //  PlotInfo.rangeEndI = Hyperparameters.nb_hours;
-    }
-
-    PlotInfo.maxDisp = Math.max(PlotInfo.maxDisp, maxima);
-
-    // Change the range of the slider
-    document.getElementById("range").max =
-      PlotInfo.rangeEndI - PlotInfo.rangeStartI - 1;
-  });
 }
 
 // ---------------- Some JS for collapsible -------------------
