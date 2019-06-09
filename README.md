@@ -7,11 +7,12 @@ The aim of the project is to give the user a tool to visualise the correlation b
 ![Screenshot](Tool.png)
 
 Via the tool users can:
-- Change the layout of the graph
-- Display / hide nodes on the basis of their degree and number of clicks per hour
-- Display / hide edges on the basis of their length
-- Save SVG pictures or Gexf of the graph
-- Sava PNG pictures of the activitiies of the nodes over a period of time
+- Select several different graphs corresponding to different weeks.
+- Change the layout of the graph.
+- Display / hide nodes on the basis of their degree and number of clicks per hour.
+- Display / hide edges on the basis of their length.
+- Save SVG pictures or Gexf of the graph.
+- Sava PNG pictures of the activitiies of the nodes over a period of time.
 
 ### Packages:
 
@@ -23,9 +24,6 @@ http://sigmajs.org
 
 Prettier styling:
 https://prettier.io/
-
-Ngraph by anvanka :
-ngraph.graph
 
 ### Context
 This project is a student project of the LTS2 lab at EPFL, Switzerland.
