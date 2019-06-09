@@ -1,4 +1,4 @@
-# Website
+# Visualisation of time- arying large graphs for detection of activities in Wikipedia
 This website has been built as an interactive tool to display and render the time - varying activity of graphs.
 The graph is based on a subset of Wikipedia Pages which have not only a connection, but also a time dependence.
 
