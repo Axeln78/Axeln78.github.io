@@ -73,7 +73,6 @@ body {
 }
 
 .collapsible {
-  /*background-color: rgba(153, 153, 153, 0.8);*/
   background-color: rgba(220, 220, 220, 0.8);
   color: #111;
   -webkit-transition-duration: 0.4s; /* Safari */
@@ -86,7 +85,6 @@ body {
 }
 
 .content {
-  /*padding: 0 18px;*/
   max-height: 30;
   transition: max-height 0.2s ease-out;
   display: none;

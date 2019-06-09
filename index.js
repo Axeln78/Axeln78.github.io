@@ -1,17 +1,5 @@
 // ------------- Gobal structures / variables -------------------
 // --------------------------------------------------------------
-// System functions and global initialisations
-/*var Hyperparameters = {
-  filename: "/data/final/2018_09_1q.json",
-  startDate: "2018-08-31 22:00:00",
-  //startDate: "2018-07-31 22:00:00",
-  //activityDir: "./data/LargeG/activations_dict_unpacked.csv",
-  activityDir: "./data/final/activations_2018_09_1q.json",
-  //activityDir: "./data/Data_hourly.csv",
-  nb_hours: 336,
-  n_nodes: 0,
-  n_edges: 0
-};*/
 
 var Hyperparameters = {
   filename: "",
@@ -84,8 +72,6 @@ sigmaConfig = {
     maxEdgeSize: 0.01,
     labelThreshold: 5,
     hideEdgesOnMove: true
-    // Not working with the custom Sigma:
-    //batchEdgesDrawing: true
   }
 };
 
@@ -450,7 +436,6 @@ document.getElementById("range").oninput = function() {
   // Update a second trace of the plot where the bar is stored to move it at y = "selected time"
   let updateLayout = {
     shapes: [
-      // 1st highlight during Feb 4 - Feb 6
       {
         type: "rect",
         // x-reference is assigned to the x-values
@@ -713,7 +698,7 @@ function readActivity() {
         PlotInfo.rangeEndI = PlotInfo.nb_hours - 1;
       } // Other operation
       else {
-        console.log("Possible issue with the relayout");
+        console.log("Possible issue with the relayout if not time range filter");
       }
 
       // Change the range of the slider
@@ -830,7 +815,4 @@ function stopSpinner() {
   roller.style.display = "none";
 }
 
-// Initialisation of the first graph at the opening of the page
-
 init();
-//stopSpinner();

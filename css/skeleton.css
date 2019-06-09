@@ -352,6 +352,8 @@ select {
   border-radius: 4px;
   box-shadow: none;
   box-sizing: border-box;
+  font-size: 1em;
+  font-family: "Roboto", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial,     sans-serif;
 }
 /* Removes awkward default styles on some inputs for iOS */
 input[type="email"],
