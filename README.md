@@ -5,6 +5,7 @@ The graph is based on a subset of Wikipedia Pages which have not only a connecti
 The aim of the project is to give the user a tool to visualise the correlation between the activities of the pages as well as the overall structure of wikipedia.
 
 ![Screenshot](Tool.png)
+*Screenshot of the graph visualisation tool*
 
 Via the tool users can:
 - Select several different graphs corresponding to different weeks.
