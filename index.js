@@ -90,6 +90,7 @@ function getHyperparmeters() {
     "hours"
   );
   PlotInfo.nb_hours = Hyperparameters.nb_hours;
+  PlotInfo.rangeEndI = Hyperparameters.nb_hours;
 }
 
 function init() {
@@ -698,7 +699,9 @@ function readActivity() {
         PlotInfo.rangeEndI = PlotInfo.nb_hours - 1;
       } // Other operation
       else {
-        console.log("Possible issue with the relayout if not time range filter");
+        console.log(
+          "Possible issue with the relayout if not time range filter"
+        );
       }
 
       // Change the range of the slider
@@ -712,7 +715,7 @@ function unpack(rows, key) {
   return Object.values(rows[key]);
 }
 
-//plot initial empty box
+//plot activity chart
 function plotActivity(nodes) {
   let plot = document.getElementById("Plot");
   let data = [];
@@ -732,8 +735,8 @@ function plotActivity(nodes) {
 
   var layout = {
     autosize: true,
-    paper_bgcolor: "#000000", // 646464
-    plot_bgcolor: "#000000", //#E2E2E2
+    paper_bgcolor: "#000000", // black
+    plot_bgcolor: "#000000",
 
     margin: {
       l: 50,
@@ -747,16 +750,16 @@ function plotActivity(nodes) {
       type: "date",
       autorange: true,
       automargin: true,
-      //tickcolor: "#999"
       color: "#999",
-      gridcolor: "#333"
+      gridcolor: "#333",
+      title: "Date"
     },
     yaxis: {
-      //autorange: true,
       type: "linear",
       automargin: true,
       color: "#999",
-      gridcolor: "#333"
+      gridcolor: "#333",
+      title: "number of visits per hour"
     },
     // Here could be some indicative values for abs height and width
     width: document.getElementById("plot-container").offsetWidth,
