@@ -92,3 +92,7 @@ body {
   display: none;
   overflow: auto;
 }
+
+#WeekSelect {
+  width: 120px;
+}

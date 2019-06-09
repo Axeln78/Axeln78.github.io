@@ -345,7 +345,7 @@ input[type="password"],
 textarea,
 select {
   height: 38px;
-  width: 100px;
+  width: 80px;
   padding: 6px 10px; /* The 6px vertically centers text on FF, ignored by Webkit */
   background-color: #999;
   border: 1px solid #d1d1d1;
