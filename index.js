@@ -132,11 +132,6 @@ function updateInfo(s) {
     Hyperparameters.n_edges + " edges";
 }
 
-document.getElementById("WeekSelect").oninput = function() {
-  startSpinner(init);
-  stopSpinner();
-};
-
 // Changes made to https://www.npmjs.com/package/nearest-date
 function nearest(dates, target) {
   if (!target) target = Date.now();
@@ -236,7 +231,6 @@ function fetchMaxDisp() {
   PlotInfo.maxDisp = Math.max(PlotInfo.maxDisp, maxima);
 }
 
-// -----------TEST  ------------------------------------------
 // Zoom out - single frame :
 function zoomOut() {
   var c = sigmaInstance.camera;
@@ -260,8 +254,6 @@ function initZoom() {
     ratio: c.settings("zoomingRatio")
   });
 }
-
-// --------------------------------------------------------
 
 function drawEdges(bool) {
   sigmaInstance.settings("drawEdges", bool);
@@ -460,7 +452,7 @@ document.getElementById("range").oninput = function() {
   PlotInfo.selectedTimeI = PlotInfo.rangeStartI + parseInt(this.value);
 
   document.getElementById("DateIndicator").innerHTML =
-    "selected Time: " + time[PlotInfo.selectedTimeI].toUTCString();
+    "Selected Time: " + time[PlotInfo.selectedTimeI].toUTCString();
   // Update a second trace of the plot where the bar is stored to move it at y = "selected time"
   let updateLayout = {
     shapes: [

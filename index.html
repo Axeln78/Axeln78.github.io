@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-141790361-1"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "UA-141790361-1");
+    </script>
     <!-- Basic Page Needs
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <meta charset="utf-8" />
@@ -58,21 +72,6 @@
     <!-- FontAwesome
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script src="https://kit.fontawesome.com/47fcb0292b.js"></script>
-
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=UA-141790361-1"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-
-      gtag("config", "UA-141790361-1");
-    </script>
   </head>
 
   <!-- Body
@@ -105,7 +104,7 @@
         <p id="nnodes"></p>
       </div>
       <div class="two columns">
-        <select id="WeekSelect">
+        <select id="WeekSelect" oninput="init()">
           <option
             value="2018_09_1q"
             startDate="2018-08-31 22:00:00"

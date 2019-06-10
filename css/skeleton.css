@@ -293,7 +293,8 @@ input[type="button"] {
   border: 1px solid #bbb;
   cursor: pointer;
   box-sizing: border-box;
-  font-family: "Roboto", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Roboto", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
   /* color: white; */
 }
 .button:hover,
@@ -354,7 +355,8 @@ select {
   box-shadow: none;
   box-sizing: border-box;
   font-size: 1em;
-  font-family: "Roboto", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial,     sans-serif;
+  font-family: "Roboto", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
 }
 /* Removes awkward default styles on some inputs for iOS */
 input[type="email"],
@@ -474,7 +476,7 @@ input,
 textarea,
 select,
 fieldset {
-  margin: 1rem;
+  margin: 0.5rem;
 }
 pre,
 blockquote,
