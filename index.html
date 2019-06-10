@@ -54,9 +54,25 @@
     <!-- Plotly
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script src="./lib/plotly-latest.min.js"></script>
+
     <!-- FontAwesome
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script src="https://kit.fontawesome.com/47fcb0292b.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-141790361-1"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "UA-141790361-1");
+    </script>
   </head>
 
   <!-- Body
@@ -244,12 +260,9 @@
           <div class="row" id="Plot"></div>
         </div>
       </div>
-      <!-- <button class="collapsible">Timeline filter</button>-->
       <button class="collapsible">
         <span class="fas fa-magic fa-lg"></span>
         <span class="fas fa-hourglass-half fa-lg"></span>
-        <!--<i class="fas fa-magicfa-lg"></i>
-        <i class="fas fa-hourglass-half fa-lg"></i>-->
       </button>
       <div class="content">
         <div class="row">
@@ -262,7 +275,7 @@
               max="100"
               value="0"
             />
-            <label for="date">TimeLine</label>
+            <label for="date"></label>
             <div id="DateIndicator"></div>
           </div>
           <div class="row">
@@ -289,7 +302,6 @@
       </div>
     </div>
 
-    <!--  <script type="module" src="lib/spin.js"></script> -->
     <script type="text/javascript" src="index.js"></script>
 
     <!-- End Document
