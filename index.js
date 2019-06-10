@@ -80,12 +80,12 @@ sigmaConfig = {
 function getHyperparmeters() {
   selection = document.getElementById("WeekSelect");
   // Update all the Hyperparameters based on the selected week / time frame
-  Hyperparameters.filename = "./data/final/" + selection.value + ".json";
+  Hyperparameters.filename = "./data/" + selection.value + ".json";
   Hyperparameters.startDate = selection[selection.selectedIndex].getAttribute(
     "startDate"
   );
   Hyperparameters.activityDir =
-    "./data/final/activations_" + selection.value + ".json";
+    "./data/activations_" + selection.value + ".json";
   Hyperparameters.nb_hours = selection[selection.selectedIndex].getAttribute(
     "hours"
   );
@@ -235,6 +235,33 @@ function fetchMaxDisp() {
   }
   PlotInfo.maxDisp = Math.max(PlotInfo.maxDisp, maxima);
 }
+
+// -----------TEST  ------------------------------------------
+// Zoom out - single frame :
+function zoomOut() {
+  var c = sigmaInstance.camera;
+  c.goTo({
+    ratio: c.ratio * c.settings("zoomingRatio")
+  });
+}
+
+// Zoom in - single frame :
+function zoomIn() {
+  var c = sigmaInstance.camera;
+  c.goTo({
+    ratio: c.ratio / c.settings("zoomingRatio")
+  });
+}
+
+// Come back to initial zoom :
+function initZoom() {
+  var c = sigmaInstance.camera;
+  c.goTo({
+    ratio: c.settings("zoomingRatio")
+  });
+}
+
+// --------------------------------------------------------
 
 function drawEdges(bool) {
   sigmaInstance.settings("drawEdges", bool);
@@ -818,4 +845,5 @@ function stopSpinner() {
   roller.style.display = "none";
 }
 
+// ------------------ Initialisate the first graph --------------
 init();
