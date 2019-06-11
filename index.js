@@ -34,12 +34,12 @@ var Selected = {
     } else {
       console.error("Undefined node");
     }
-    console.log("rm");
+    //console.log("rm");
   }, // --------- removing -----------------
   reset: function() {
     this.obj = {};
     this.arr = [];
-    console.log("Selection reset");
+    //console.log("Selection reset");
   } // ------- resetting the selection of the nodes
 };
 
@@ -278,7 +278,7 @@ function updateGraph() {
 // of hours and the first hour timestamp
 function setTime(hours) {
   if (typeof hours === "undefined") {
-    console.log("There is an issue with the number of hours");
+    //console.log("There is an issue with the number of hours");
     hours = Hyperparameters.nb_hours;
   }
 
@@ -306,8 +306,8 @@ function restartGV() {
 
 // Switches between single node and multinode selection
 function changeMultiSelect(checked) {
-  console.log("Changing selection mode");
-  console.log(checked);
+  //console.log("Changing selection mode");
+  //console.log(checked);
   if (checked) {
     Selected.multi = false;
   } else {
@@ -424,7 +424,6 @@ document.getElementById("noverlap").onclick = function() {
   var exportPromise = new Promise(function(resolve, reject) {
     setTimeout(function() {
       resolve("Success. NoOverlap.");
-      console.log("Noverlap Start");
       sigmaInstance.startNoverlap();
     }, 0);
   });
@@ -495,7 +494,7 @@ function filterActivity() {
       try {
         val = parseInt(gdata[n.id][PlotInfo.rangeStartI + parseInt(timestamp)]);
       } catch (err) {
-        console.log(n.id);
+        //console.log(n.id);
       }
       return val >= lt && val <= ht;
     }, "activity")
@@ -587,7 +586,7 @@ document.getElementById("elementSelect").onchange = function() {
 
 // Export FUNCTIONS
 document.getElementById("exportSVG").onclick = function() {
-  console.log("exporting to SVG...");
+  //console.log("exporting to SVG...");
   var output = sigmaInstance.toSVG({
     download: true,
     filename: "mygraph.svg"
@@ -619,7 +618,7 @@ document.getElementById("exportGEXF").onclick = function() {
 };
 
 document.getElementById("CheckboxLayout").onchange = function() {
-  console.log("Changing selection mode");
+  //console.log("Changing selection mode");
   if (this.checked) {
     Selected.linLog = true;
   } else {
@@ -718,9 +717,9 @@ function readActivity() {
         PlotInfo.rangeEndI = PlotInfo.nb_hours - 1;
       } // Other operation
       else {
-        console.log(
+        /*console.log(
           "Possible issue with the relayout if not time range filter"
-        );
+        );*/
       }
 
       // Change the range of the slider
@@ -826,7 +825,7 @@ for (i = 0; i < coll.length; i++) {
 function startSpinner(callback) {
   roller = document.getElementById("roller");
   roller.style.display = "block";
-  console.log("This might take some time...");
+  //console.log("This might take some time...");
   if (typeof callback === "function") {
     // Call it, since we have confirmed it is callable
     callback();
