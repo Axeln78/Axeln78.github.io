@@ -15,6 +15,15 @@ Via the tool users can:
 - Save SVG pictures or Gexf of the graph.
 - Save PNG pictures of the activities of the nodes over a period of time.
 
+### Running locally
+
+```
+npm install
+npm start
+```
+
+Then open http://localhost:8000.
+
 ### Packages:
 
 Plotly JS:
