@@ -1,20 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=UA-141790361-1"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-
-      gtag("config", "UA-141790361-1");
-    </script>
     <!-- Basic Page Needs
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <meta charset="utf-8" />
@@ -56,7 +42,6 @@
     <!-- Sigma
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <script src="./lib/sigma_js/sigma.min.js"></script>
-    <script src="./lib/sigma_js/plugins/sigma.parsers.gexf.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.parsers.json.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.layout.forceAtlas2.min.js"></script>
     <script src="./lib/sigma_js/plugins/sigma.layout.noverlap.min.js"></script>
@@ -104,38 +89,38 @@
         <p id="nnodes"></p>
       </div>
       <div class="two columns">
-        <select id="WeekSelect" oninput="init()">
+        <select id="WeekSelect" onchange="init()">
           <option
             value="2018_09_1q"
-            startDate="2018/08/31 22:00:00"
+            startDate="2018-08-31T22:00:00Z"
             hours="336"
           >
             1-15 sep. 2018</option
           >
           <option
             value="2018_09_2q"
-            startDate="2018/09/14 22:00:00"
+            startDate="2018-09-14T22:00:00Z"
             hours="384"
           >
             16-30 sep. 2018</option
           >
           <option
             value="2018_10_1q"
-            startDate="2018/09/30 22:00:00"
+            startDate="2018-09-30T22:00:00Z"
             hours="336"
           >
             1-15 oct. 2018</option
           >
           <option
             value="2018_10_2q"
-            startDate="2018/10/14 22:00:00"
+            startDate="2018-10-14T22:00:00Z"
             hours="385"
           >
             16-31 oct. 2018
           </option>
           <option
-            value="2018_10_1q"
-            startDate="2018/10/31 23:00:00"
+            value="2018_11_1q"
+            startDate="2018-10-31T23:00:00Z"
             hours="336"
           >
             1-15 nov. 2018</option
@@ -163,8 +148,8 @@
         </button>
         <div class="content">
           <div class="row">
-            <button id="exportSVG" type="export">SVG</button>
-            <button id="exportGEXF" type="export2">GEXF</button>
+            <button id="exportSVG" type="button">SVG</button>
+            <button id="exportGEXF" type="button">GEXF</button>
           </div>
         </div>
       </div>
@@ -220,7 +205,7 @@
           <button class="collapsible">Custom filter</button>
           <div class="content">
             <div class="row"></div>
-            Nodes/egdes - Attribute - Comprison - value
+            Nodes/edges - Attribute - Comparison - Value
             <select id="elementSelect">
               <option value="nodes">nodes</option>
               <option value="edges">edges</option>
@@ -275,7 +260,7 @@
               max="100"
               value="0"
             />
-            <label for="date"></label>
+            <label for="range"></label>
             <div id="DateIndicator"></div>
           </div>
           <div class="row">
