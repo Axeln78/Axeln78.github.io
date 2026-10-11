@@ -90,37 +90,28 @@ function getHyperparmeters() {
     "hours"
   );
   PlotInfo.nb_hours = Hyperparameters.nb_hours;
+  PlotInfo.rangeStartI = 0;
   PlotInfo.rangeEndI = Hyperparameters.nb_hours;
+  PlotInfo.selectedTimeI = 0;
+  document.getElementById("range").value = 0;
 }
 
 function init() {
   startSpinner();
 
-  var exportPromise = new Promise(function(resolve, reject) {
-    setTimeout(function() {
-      resolve("Success in loading the env.");
+  //Update global the global structures
+  getHyperparmeters();
 
-      //Update global the global structures
-      getHyperparmeters();
+  // Update all the visuals and information on the graph based on that
+  Selected.reset();
+  Selected.disp = false;
+  clearGraph();
 
-      // Update all the visuals and information on the graph based on that
-      clearGraph();
+  // Set the timeine given the number of hours and the startdate
+  setTime();
 
-      // Set the timeine given the number of hours and the startdate
-      setTime();
-
-      // Parse activity file
-      readActivity();
-
-      // Update the graph visuals
-      updateGraph();
-    }, 0);
-  });
-
-  exportPromise.then(function(result) {
-    stopSpinner();
-    console.log(result);
-  });
+  // Parse the activity file and the graph, then hide the spinner
+  Promise.all([readActivity(), updateGraph()]).then(stopSpinner);
 }
 
 function updateInfo(s) {
@@ -153,6 +144,12 @@ function nearest(dates, target) {
   }
 
   return winner;
+}
+
+// Plotly reports axis ranges as local-time "YYYY-MM-DD HH:MM:SS" strings,
+// which Safari can't parse; the ISO "T" separator works everywhere.
+function parsePlotlyDate(str) {
+  return new Date(String(str).replace(" ", "T"));
 }
 
 // Returns the date with one added hour
@@ -197,8 +194,7 @@ sigma.classes.graph.addMethod("activate", function() {
   // Edges
   this.edges().forEach(function(e) {
     if (Selected.obj[e.source] && Selected.obj[e.target]) {
-      let colour = e.originalColor;
-      e.color = colour.replace(".1", ".4");
+      e.color = e.originalColor.replace(/,\s*[\d.]+\)$/, ",.9)");
     } else {
       e.color = "rgba(68,68,68,.1)";
     }
@@ -251,7 +247,9 @@ function zoomIn() {
 function initZoom() {
   var c = sigmaInstance.camera;
   c.goTo({
-    ratio: c.settings("zoomingRatio")
+    x: 0,
+    y: 0,
+    ratio: 1
   });
 }
 
@@ -266,12 +264,12 @@ function clearGraph() {
 }
 
 function updateGraph() {
-  sigma.parsers.json(
-    Hyperparameters.filename,
-    sigmaInstance,
-    sigmaInitCallback
-  );
-  sigmaInstance.refresh();
+  return new Promise(function(resolve) {
+    sigma.parsers.json(Hyperparameters.filename, sigmaInstance, function(s) {
+      sigmaInitCallback(s);
+      resolve();
+    });
+  });
 }
 
 //function that makes an ordered series of timestamps based on the number
@@ -687,45 +685,56 @@ document.getElementById("CheckboxPlot").onchange = function() {
 };
 
 var gdata = {};
+var relayoutBound = false;
 function readActivity() {
   // Read the activity data
   gdata = {};
-  Plotly.d3.json(Hyperparameters.activityDir, function(err, rows) {
-    gdata = rows;
-
-    for (i in rows) {
-      gdata[i] = unpack_dict(rows[i]);
-    }
-
-    plotActivity([]);
-
-    plot.on("plotly_relayout", function(eventdata) {
-      // Zoom-in
-      if (eventdata["xaxis.range[0]"]) {
-        PlotInfo.rangeStartI = nearest(
-          time,
-          new Date(eventdata["xaxis.range[0]"])
-        );
-        PlotInfo.rangeEndI = nearest(
-          time,
-          new Date(eventdata["xaxis.range[1]"])
-        );
+  return new Promise(function(resolve) {
+    Plotly.d3.json(Hyperparameters.activityDir, function(err, rows) {
+      for (let id in rows) {
+        gdata[id] = unpack_dict(rows[id]);
       }
-      // Zoom out to origin
-      else if (eventdata["xaxis.autorange"]) {
-        PlotInfo.rangeStartI = 0;
-        PlotInfo.rangeEndI = PlotInfo.nb_hours - 1;
-      } // Other operation
-      else {
-        /*console.log(
+
+      plotActivity([]);
+      bindRelayout();
+      resolve();
+    });
+  });
+}
+
+// When the user zooms on the plot, the selected time range is stored in PlotInfo.
+// Plotly only exposes .on() once the plot exists, so this is bound after the
+// first plot and only once.
+function bindRelayout() {
+  if (relayoutBound) return;
+  relayoutBound = true;
+
+  plot.on("plotly_relayout", function(eventdata) {
+    // Zoom-in
+    if (eventdata["xaxis.range[0]"]) {
+      PlotInfo.rangeStartI = nearest(
+        time,
+        parsePlotlyDate(eventdata["xaxis.range[0]"])
+      );
+      PlotInfo.rangeEndI = nearest(
+        time,
+        parsePlotlyDate(eventdata["xaxis.range[1]"])
+      );
+    }
+    // Zoom out to origin
+    else if (eventdata["xaxis.autorange"]) {
+      PlotInfo.rangeStartI = 0;
+      PlotInfo.rangeEndI = PlotInfo.nb_hours - 1;
+    } // Other operation
+    else {
+      /*console.log(
           "Possible issue with the relayout if not time range filter"
         );*/
-      }
+    }
 
-      // Change the range of the slider
-      document.getElementById("range").max =
-        PlotInfo.rangeEndI - PlotInfo.rangeStartI - 1;
-    });
+    // Change the range of the slider
+    document.getElementById("range").max =
+      PlotInfo.rangeEndI - PlotInfo.rangeStartI - 1;
   });
 }
 
