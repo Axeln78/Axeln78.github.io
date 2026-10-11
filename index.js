@@ -1,4 +1,6 @@
-// ------------- Gobal structures / variables -------------------
+"use strict";
+
+// ------------- Global structures / variables -------------------
 // --------------------------------------------------------------
 
 var Hyperparameters = {
@@ -34,12 +36,10 @@ var Selected = {
     } else {
       console.error("Undefined node");
     }
-    //console.log("rm");
   }, // --------- removing -----------------
   reset: function() {
     this.obj = {};
     this.arr = [];
-    //console.log("Selection reset");
   } // ------- resetting the selection of the nodes
 };
 
@@ -49,9 +49,8 @@ var PlotInfo = {
   nb_hours: Hyperparameters.nb_hours,
   rangeStartI: 0,
   rangeEndI: Hyperparameters.nb_hours,
-  maxDisp: 10000,
   selectedTimeI: 0,
-  nattribute: [],
+  nAttributes: [],
   eAttributes: []
 };
 
@@ -60,7 +59,7 @@ var time = [];
 
 // Configuration of sigma
 // Sigma settings: https://github.com/jacomyal/sigma.js/wiki/Settings
-sigmaConfig = {
+var sigmaConfig = {
   renderer: {
     type: "WebGL",
     container: "sigma-container"
@@ -78,7 +77,7 @@ sigmaConfig = {
 // --------------------------------------------------------------
 
 function getHyperparmeters() {
-  selection = document.getElementById("WeekSelect");
+  const selection = document.getElementById("WeekSelect");
   // Update all the Hyperparameters based on the selected week / time frame
   Hyperparameters.filename = "./data/" + selection.value + ".json";
   Hyperparameters.startDate = selection[selection.selectedIndex].getAttribute(
@@ -152,18 +151,11 @@ function parsePlotlyDate(str) {
   return new Date(String(str).replace(" ", "T"));
 }
 
-// Returns the date with one added hour
-Date.prototype.addHours = function(h) {
-  let newDate = new Date(this);
-  newDate.setHours(newDate.getHours() + h);
-  return newDate;
-};
-// Returns the date with one added hour
-Date.prototype.addMinutes = function(m) {
-  let newDate = new Date(this);
-  newDate.setMinutes(newDate.getMinutes() + m);
-  return newDate;
-};
+// Returns a new date shifted by `m` minutes (plain ms arithmetic, so
+// DST changes in the viewer's timezone don't skip or repeat an hour)
+function addMinutes(date, m) {
+  return new Date(date.getTime() + m * 60 * 1000);
+}
 
 // ---------------- Methods added to Sigma -------------------- //
 
@@ -187,7 +179,7 @@ sigma.classes.graph.addMethod("activate", function() {
   });
 
   for (let i = 0; i < Selected.arr.length; i++) {
-    node = this.nodesIndex[Selected.arr[i].id];
+    const node = this.nodesIndex[Selected.arr[i].id];
     node.color = node.originalColor;
   }
 
@@ -211,21 +203,6 @@ sigma.classes.graph.addMethod("storeEdgeLenght", function() {
     e.length = Math.hypot(x2 - x1, y2 - y1);
   }
 });
-
-//Un used function to get the maximum of all displayed activity
-function fetchMaxDisp() {
-  // function that saves to memory the maxima of the displayed chart
-  PlotInfo.maxDisp = 0;
-  for (i = 0; i < Selected.arr.length; i++) {
-    let maxima = Math.max(
-      ...unpack(gdata, selected.arr[i].id).slice(
-        PlotInfo.rangeStartI,
-        PlotInfo.rangeEndI
-      )
-    );
-  }
-  PlotInfo.maxDisp = Math.max(PlotInfo.maxDisp, maxima);
-}
 
 // Zoom out - single frame :
 function zoomOut() {
@@ -276,14 +253,13 @@ function updateGraph() {
 // of hours and the first hour timestamp
 function setTime(hours) {
   if (typeof hours === "undefined") {
-    //console.log("There is an issue with the number of hours");
     hours = Hyperparameters.nb_hours;
   }
 
   time = [];
-  date = new Date(Hyperparameters.startDate);
-  for (i = 0; i < hours; i++) {
-    time.push(date.addHours(i));
+  const start = new Date(Hyperparameters.startDate);
+  for (let i = 0; i < hours; i++) {
+    time.push(addMinutes(start, i * 60));
   }
 }
 
@@ -304,20 +280,14 @@ function restartGV() {
 
 // Switches between single node and multinode selection
 function changeMultiSelect(checked) {
-  //console.log("Changing selection mode");
-  //console.log(checked);
-  if (checked) {
-    Selected.multi = false;
-  } else {
-    Selected.multi = true;
-  }
+  Selected.multi = !checked;
 }
 
 // ------ Sigma object creation and graph inportation---------- //
 var sigmaInstance = new sigma(sigmaConfig);
 var filter = new sigma.plugins.filter(sigmaInstance);
 
-sigmaInitCallback = function(s) {
+function sigmaInitCallback(s) {
   s.refresh();
 
   // ----- Set the maximum node degree ----- //
@@ -343,6 +313,7 @@ sigmaInitCallback = function(s) {
   // --------------------- custom plugin ---------------------- //
   PlotInfo.nAttributes = Object.keys(sigmaInstance.graph.nodes()[0]);
   PlotInfo.eAttributes = Object.keys(sigmaInstance.graph.edges()[0]);
+  updateAttributeOptions();
 
   // ---------------- ELEMENT linked functions -------------------- //
   // Needs to go and get the data information of the activity in order to compare it here.
@@ -352,7 +323,7 @@ sigmaInitCallback = function(s) {
   // -------------------- Selection and more general functions -------------- //
   s.refresh();
   updateInfo(s.graph);
-};
+}
 
 sigmaInstance.bind("clickStage", function(e) {
   // isDragging propriety : https://github.com/jacomyal/sigma.js/issues/342#issuecomment-58361925
@@ -380,7 +351,7 @@ sigmaInstance.bind("clickNode", function(e) {
     toKeep[nodeId] = e.data.node; // handles and exeption on the clicked node
     Selected.reset();
 
-    for (i in toKeep) {
+    for (let i in toKeep) {
       Selected.add(toKeep[i]);
     }
   }
@@ -396,24 +367,27 @@ sigmaInstance.bind("clickNode", function(e) {
 
 // -------------------- LAYOUT & plugins -------------------- //
 
+function startForceAtlas2() {
+  sigmaInstance.startForceAtlas2({
+    slowDown: 1,
+    linLogMode: Selected.linLog,
+    iterationsPerRender: 3,
+    scalingRatio: 40,
+    worker: true,
+    barnesHutOptimize: true
+  });
+}
+
 document.getElementById("layout").onclick = function() {
   if (!sigmaInstance.isForceAtlas2Running()) {
-    sigmaInstance.startForceAtlas2({
-      slowDown: 1,
-      linLogMode: Selected.linLog,
-      iterationsPerRender: 3,
-      scalingRatio: 40,
-      worker: true,
-      barnesHutOptimize: true
-    });
-    this.textContent = "Stop";
+    startForceAtlas2();
+    this.textContent = "Stop Force Atlas 2";
   } else {
     sigmaInstance.stopForceAtlas2();
-    this.textContent = "Start";
+    this.textContent = "Force Atlas 2";
     sigmaInstance.graph.storeEdgeLenght();
     filterEdges();
   }
-  //force = !force;
 };
 
 document.getElementById("noverlap").onclick = function() {
@@ -459,9 +433,9 @@ document.getElementById("range").oninput = function() {
         xref: "x",
         // y-reference is assigned to the plot paper [0,1]
         yref: "paper",
-        x0: time[PlotInfo.selectedTimeI].addMinutes(-30),
+        x0: addMinutes(time[PlotInfo.selectedTimeI], -30),
         y0: 0,
-        x1: time[PlotInfo.selectedTimeI].addMinutes(30),
+        x1: addMinutes(time[PlotInfo.selectedTimeI], 30),
         y1: 1,
         fillcolor: "#F9812A",
         opacity: 0.9,
@@ -482,29 +456,27 @@ document.getElementById("selectionR").onclick = function() {
 // -------------------------- FILTERS -------------------------- //
 
 function filterActivity() {
-  timestamp = document.getElementById("range").value;
-  lt = document.getElementById("lower-threshold").value;
-  ht = document.getElementById("higher-threshold").value;
+  const timestamp = parseInt(document.getElementById("range").value);
+  const lt = Number(document.getElementById("lower-threshold").value);
+  const ht = Number(document.getElementById("higher-threshold").value);
   filter
     .undo("activity")
     .nodesBy(function(n) {
-      let val = 0;
-      try {
-        val = parseInt(gdata[n.id][PlotInfo.rangeStartI + parseInt(timestamp)]);
-      } catch (err) {
-        //console.log(n.id);
-      }
+      const activity = gdata[n.id];
+      const val = activity
+        ? parseInt(activity[PlotInfo.rangeStartI + timestamp])
+        : 0;
       return val >= lt && val <= ht;
     }, "activity")
     .apply();
 }
 
 function filterEdges() {
-  length = document.getElementById("edge-threshold").value;
+  const minLength = Number(document.getElementById("edge-threshold").value);
   filter
     .undo("Short edge cutting")
     .edgesBy(function(e) {
-      return e.length > length;
+      return e.length > minLength;
     }, "Short edge cutting")
     .apply();
 }
@@ -521,18 +493,14 @@ function filterDegree(minDegree) {
 // -------------------------- Attribute filter functions
 
 function attributefilter(obj, val) {
-  attribute = document.getElementById("attributeSelect").value;
+  const attribute = document.getElementById("attributeSelect").value;
   switch (document.getElementById("comparisonSelect").value) {
     case "0":
       return obj[attribute] > val;
-
-      break;
     case "1":
       return obj[attribute] == val;
-      break;
     case "2":
       return obj[attribute] < val;
-      break;
 
     default:
       console.log("Unknown comparison element");
@@ -560,32 +528,31 @@ function filterAnything() {
 }
 
 function addOptions(attributes) {
-  select = document.getElementById("attributeSelect");
+  const select = document.getElementById("attributeSelect");
   // Reset the options of the previous graph
   select.options.length = 0;
 
-  for (i in attributes) {
-    var opt = document.createElement("option");
-    opt.value = attributes[i];
-    opt.innerHTML = attributes[i];
+  attributes.forEach(function(attribute) {
+    const opt = document.createElement("option");
+    opt.value = attribute;
+    opt.textContent = attribute;
     select.appendChild(opt);
+  });
+}
+
+function updateAttributeOptions() {
+  if (document.getElementById("elementSelect").value == "edges") {
+    addOptions(PlotInfo.eAttributes);
+  } else {
+    addOptions(PlotInfo.nAttributes);
   }
 }
 
-document.getElementById("elementSelect").onchange = function() {
-  if (this.value == "nodes") {
-    addOptions(PlotInfo.nAttributes);
-  } else if (this.value == "edges") {
-    addOptions(PlotInfo.eAttributes);
-  } else {
-    console.log("Error in the attribute selection");
-  }
-};
+document.getElementById("elementSelect").onchange = updateAttributeOptions;
 
 // Export FUNCTIONS
 document.getElementById("exportSVG").onclick = function() {
-  //console.log("exporting to SVG...");
-  var output = sigmaInstance.toSVG({
+  sigmaInstance.toSVG({
     download: true,
     filename: "mygraph.svg"
   });
@@ -616,23 +583,11 @@ document.getElementById("exportGEXF").onclick = function() {
 };
 
 document.getElementById("CheckboxLayout").onchange = function() {
-  //console.log("Changing selection mode");
-  if (this.checked) {
-    Selected.linLog = true;
-  } else {
-    Selected.linLog = false;
-  }
+  Selected.linLog = this.checked;
   // Restart Force Atlas 2
   if (sigmaInstance.isForceAtlas2Running()) {
     sigmaInstance.killForceAtlas2();
-    sigmaInstance.startForceAtlas2({
-      slowDown: 1,
-      linLogMode: Selected.linLog,
-      iterationsPerRender: 2,
-      scalingRatio: 40,
-      worker: true,
-      barnesHutOptimize: true
-    });
+    startForceAtlas2();
   }
 };
 
@@ -643,7 +598,7 @@ document.getElementById("rangeDegree").oninput = function() {
 };
 
 // Configure the noverlap layout:
-var noverlapListener = sigmaInstance.configNoverlap({
+sigmaInstance.configNoverlap({
   nodeMargin: 0.01,
   scaleNodes: 1.05,
   gridSize: 75,
@@ -663,16 +618,13 @@ function unpack_dict(d, hours) {
     hours = Hyperparameters.nb_hours;
   }
 
-  l = {};
+  const l = {};
   // Fill with 0s
   for (let i = 0; i < hours; i++) {
     l[i] = 0;
   }
   // Fill with sparse data
-  for (i in d) {
-    l[i] = d[i];
-  }
-  return l;
+  return Object.assign(l, d);
 }
 
 // -------------------- Interactive plot ------------------------ //
@@ -725,11 +677,6 @@ function bindRelayout() {
     else if (eventdata["xaxis.autorange"]) {
       PlotInfo.rangeStartI = 0;
       PlotInfo.rangeEndI = PlotInfo.nb_hours - 1;
-    } // Other operation
-    else {
-      /*console.log(
-          "Possible issue with the relayout if not time range filter"
-        );*/
     }
 
     // Change the range of the slider
@@ -753,9 +700,6 @@ function plotActivity(nodes) {
       name: n.label,
       x: time,
       y: unpack(gdata, n.id)
-      //  line: {
-      //      color: n.color
-      //    }
     };
     data.push(trace);
   });
@@ -801,23 +745,18 @@ function plotActivity(nodes) {
         size: 10,
         color: "#999"
       },
-      //bgcolor: "#FFFFFF", //"#E2E2E2"
       bordercolor: "#111111",
       borderwidth: 1
     }
   };
 
-  //Plotly.newPlot(plot, data, layout);
   Plotly.react(plot, data, layout, { responsive: false });
-  // When the user zooms on the plot, he modifies the selected time range,
-  // this information is then sored in the global PlotInfo
 }
 
 // ---------------- Some JS for collapsible -------------------
-var coll = document.getElementsByClassName("collapsible");
-var i;
+const coll = document.getElementsByClassName("collapsible");
 
-for (i = 0; i < coll.length; i++) {
+for (let i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function() {
     this.classList.toggle("active");
     var content = this.nextElementSibling;
@@ -832,18 +771,15 @@ for (i = 0; i < coll.length; i++) {
 // ------------------ Spinner animation functions ---------------
 
 function startSpinner(callback) {
-  roller = document.getElementById("roller");
-  roller.style.display = "block";
-  //console.log("This might take some time...");
+  document.getElementById("roller").style.display = "block";
   if (typeof callback === "function") {
     // Call it, since we have confirmed it is callable
     callback();
   }
 }
 function stopSpinner() {
-  roller = document.getElementById("roller");
-  roller.style.display = "none";
+  document.getElementById("roller").style.display = "none";
 }
 
-// ------------------ Initialisate the first graph --------------
+// ------------------ Initialise the first graph --------------
 init();
