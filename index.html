@@ -90,7 +90,7 @@
         <p id="nnodes"></p>
       </div>
       <div class="two columns">
-        <select id="WeekSelect" oninput="init()">
+        <select id="WeekSelect" onchange="init()">
           <option
             value="2018_09_1q"
             startDate="2018-08-31T22:00:00Z"
@@ -149,8 +149,8 @@
         </button>
         <div class="content">
           <div class="row">
-            <button id="exportSVG" type="export">SVG</button>
-            <button id="exportGEXF" type="export2">GEXF</button>
+            <button id="exportSVG" type="button">SVG</button>
+            <button id="exportGEXF" type="button">GEXF</button>
           </div>
         </div>
       </div>
@@ -206,7 +206,7 @@
           <button class="collapsible">Custom filter</button>
           <div class="content">
             <div class="row"></div>
-            Nodes/egdes - Attribute - Comprison - value
+            Nodes/edges - Attribute - Comparison - Value
             <select id="elementSelect">
               <option value="nodes">nodes</option>
               <option value="edges">edges</option>
@@ -261,7 +261,7 @@
               max="100"
               value="0"
             />
-            <label for="date"></label>
+            <label for="range"></label>
             <div id="DateIndicator"></div>
           </div>
           <div class="row">
